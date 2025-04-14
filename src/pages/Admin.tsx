@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Map, Plus, Sparkles, Image } from 'lucide-react';
+import { Waypoint } from '@/lib/types';
 import HuntForm from '@/components/admin/HuntForm';
 import HuntsList from '@/components/admin/HuntsList';
 import WaypointForm from '@/components/admin/WaypointForm';
@@ -16,6 +17,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const { activeHunt, isLoading } = useHunt();
   const [showAddWaypoint, setShowAddWaypoint] = useState(false);
+  const [editingWaypoint, setEditingWaypoint] = useState<Waypoint | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
@@ -35,6 +37,16 @@ const Admin = () => {
   const handleLogout = () => {
     localStorage.removeItem('adminAuthenticated');
     setIsAuthenticated(false);
+  };
+  
+  const handleEditWaypoint = (waypoint: Waypoint) => {
+    setEditingWaypoint(waypoint);
+    setShowAddWaypoint(true);
+  };
+  
+  const handleEditCancel = () => {
+    setEditingWaypoint(null);
+    setShowAddWaypoint(false);
   };
 
   if (!isAuthenticated) {
@@ -150,10 +162,14 @@ const Admin = () => {
                       <>
                         <WaypointForm
                           huntId={activeHunt.id}
-                          onComplete={() => setShowAddWaypoint(false)}
+                          waypointToEdit={editingWaypoint}
+                          onComplete={() => {
+                            setShowAddWaypoint(false);
+                            setEditingWaypoint(null);
+                          }}
                         />
                         <Button
-                          onClick={() => setShowAddWaypoint(false)}
+                          onClick={handleEditCancel}
                           className="w-full mt-2"
                           variant="ghost"
                         >
@@ -163,7 +179,10 @@ const Admin = () => {
                     )}
                   </div>
                   
-                  <WaypointsList huntId={activeHunt.id} />
+                  <WaypointsList
+                    huntId={activeHunt.id}
+                    onEdit={handleEditWaypoint}
+                  />
                 </>
               ) : (
                 <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 text-center">

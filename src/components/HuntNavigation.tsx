@@ -10,7 +10,7 @@ import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
-import { Info, Map, Navigation } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { hasPendingSubmission } from '@/integrations/supabase/photoService';
 
 const HuntNavigation = () => {
@@ -102,14 +102,6 @@ const HuntNavigation = () => {
     }
   }, [latitude, longitude, currentWaypoint, activeHunt, moveToNextWaypoint, setHintRevealed, processingRevealedHints]);
   
-  // Open the current waypoint in Google Maps
-  const openInMaps = () => {
-    if (!currentWaypoint) return;
-    
-    const { latitude, longitude } = currentWaypoint;
-    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(url, '_blank');
-  };
   
   // Check for hunt completion when a photo is approved
   useEffect(() => {
@@ -228,20 +220,9 @@ const HuntNavigation = () => {
           </div>
         )}
       </div>
-      {/* Navigation section with Google Maps link */}
+      {/* Navigation section */}
       <div className="bg-white rounded-lg p-4 shadow-md">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-sm font-medium">Navigasjon</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={openInMaps}
-            className="flex items-center gap-1"
-          >
-            <Map className="h-4 w-4" />
-            <span>Åpne i Google Maps</span>
-          </Button>
-        </div>
+        <h3 className="text-sm font-medium mb-3">Navigasjon</h3>
         
         <CompassArrow
           targetLatitude={currentWaypoint.latitude}

@@ -4,27 +4,35 @@ import { useHunt } from '@/contexts/hunt';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Hint } from '@/lib/types';
+import { Hint, Waypoint } from '@/lib/types';
 import MapPicker from './MapPicker';
 
 interface WaypointFormProps {
   huntId: string;
+  waypointToEdit?: Waypoint | null;
   onComplete?: () => void;
 }
 
-const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
-  const { addWaypoint, activeHunt } = useHunt();
-  const [name, setName] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [order, setOrder] = useState('');
-  const [startingHint, setStartingHint] = useState('');
+const WaypointForm = ({ huntId, waypointToEdit, onComplete }: WaypointFormProps) => {
+  const { addWaypoint, updateWaypoint, activeHunt } = useHunt();
+  const [name, setName] = useState(waypointToEdit?.name || '');
+  const [latitude, setLatitude] = useState(waypointToEdit?.latitude ? waypointToEdit.latitude.toString() : '');
+  const [longitude, setLongitude] = useState(waypointToEdit?.longitude ? waypointToEdit.longitude.toString() : '');
+  const [order, setOrder] = useState(waypointToEdit?.order ? waypointToEdit.order.toString() : '');
+  const [startingHint, setStartingHint] = useState(waypointToEdit?.startingHint || '');
 
-  const [hints, setHints] = useState<Omit<Hint, "id" | "revealed">[]>([
-    { text: '', distanceThreshold: 100 },
-    { text: '', distanceThreshold: 50 },
-    { text: '', distanceThreshold: 15 },
-  ]);
+  const defaultHints = waypointToEdit?.hints
+    ? waypointToEdit.hints.map(hint => ({
+        text: hint.text,
+        distanceThreshold: hint.distanceThreshold
+      }))
+    : [
+        { text: '', distanceThreshold: 100 },
+        { text: '', distanceThreshold: 50 },
+        { text: '', distanceThreshold: 15 },
+      ];
+  
+  const [hints, setHints] = useState<Omit<Hint, "id" | "revealed">[]>(defaultHints);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,20 +43,33 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
     const formattedHints = hints
       .filter(hint => hint.text.trim() !== '')
       .map((hint, index) => ({
-        id: `new-${Date.now()}-${index}`,
+        // Keep existing id for existing hints, or create a new one
+        id: waypointToEdit?.hints?.[index]?.id || `new-${Date.now()}-${index}`,
         text: hint.text,
         distanceThreshold: hint.distanceThreshold,
-        revealed: false,
+        revealed: waypointToEdit?.hints?.[index]?.revealed || false,
       }));
     
-    addWaypoint(huntId, {
+    const waypointData = {
       name,
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
       order: parseInt(order),
       hints: formattedHints,
       startingHint: startingHint.trim() || undefined,
-    });
+    };
+    
+    if (waypointToEdit) {
+      // Update existing waypoint
+      updateWaypoint(huntId, {
+        ...waypointData,
+        id: waypointToEdit.id,
+        found: waypointToEdit.found
+      });
+    } else {
+      // Create new waypoint
+      addWaypoint(huntId, waypointData);
+    }
     
     // Reset form
     setName('');
@@ -80,11 +101,17 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
   };
 
   React.useEffect(() => {
-    setOrder(getNextOrderNumber().toString());
-  }, [activeHunt?.waypoints.length]);
+    // Only auto-set order for new waypoints, not when editing
+    if (!waypointToEdit) {
+      setOrder(getNextOrderNumber().toString());
+    }
+  }, [activeHunt?.waypoints.length, waypointToEdit]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        {waypointToEdit ? `Rediger: ${waypointToEdit.name}` : 'Legg til ny post'}
+      </h2>
       <div className="space-y-2">
         <Label htmlFor="waypoint-name">Navn på post</Label>
         <Input
@@ -197,7 +224,9 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
         />
       </div>
       
-      <Button type="submit" className="w-full">Legg til post</Button>
+      <Button type="submit" className="w-full">
+        {waypointToEdit ? 'Oppdater post' : 'Legg til post'}
+      </Button>
     </form>
   );
 };
