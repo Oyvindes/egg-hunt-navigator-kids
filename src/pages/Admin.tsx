@@ -22,8 +22,17 @@ const Admin = () => {
   
   useEffect(() => {
     // Check if user is authenticated from localStorage
+    // If the user is coming directly to /admin without having previously authenticated,
+    // we want to ensure they're prompted for the PIN
     const adminAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
     setIsAuthenticated(adminAuthenticated);
+  }, []);
+  
+  // Always reset authentication when component mounts to enforce PIN entry on each admin visit
+  useEffect(() => {
+    // Forcing PIN entry on every admin page access
+    localStorage.removeItem('adminAuthenticated');
+    setIsAuthenticated(false);
   }, []);
   
   const handleBackClick = () => {
