@@ -109,14 +109,17 @@ export async function removeHunt(huntId: string) {
   if (error) throw error;
 }
 
-export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "id" | "found">) {
+export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "id" | "found"> & { latitude: string | number; longitude: string | number }) {
+  const latitudeString = waypoint.latitude.toString();
+  const longitudeString = waypoint.longitude.toString();
+  
   const { data: waypointData, error: waypointError } = await supabase
     .from('waypoints')
     .insert({
       hunt_id: huntId,
       name: waypoint.name,
-      latitude: waypoint.latitude.toString(),
-      longitude: waypoint.longitude.toString(),
+      latitude: latitudeString,
+      longitude: longitudeString,
       order_number: waypoint.order,
       starting_hint: waypoint.startingHint || null,
       found: false
@@ -145,7 +148,6 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
     }
   }
   
-  // Fetch updated waypoint with hints
   const { data: refetchedWaypointData, error: refetchError } = await supabase
     .from('waypoints')
     .select('*')
@@ -167,13 +169,16 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
   };
 }
 
-export async function modifyWaypoint(waypointId: string, waypointData: Partial<Waypoint>) {
+export async function modifyWaypoint(waypointId: string, waypointData: Partial<Waypoint> & { latitude?: string | number; longitude?: string | number }) {
+  const latitudeString = waypointData.latitude?.toString();
+  const longitudeString = waypointData.longitude?.toString();
+  
   const { error: waypointError } = await supabase
     .from('waypoints')
     .update({
       name: waypointData.name,
-      latitude: waypointData.latitude?.toString(),
-      longitude: waypointData.longitude?.toString(),
+      latitude: latitudeString,
+      longitude: longitudeString,
       order_number: waypointData.order,
       starting_hint: waypointData.startingHint || null,
       found: waypointData.found
@@ -183,7 +188,6 @@ export async function modifyWaypoint(waypointId: string, waypointData: Partial<W
   if (waypointError) throw waypointError;
   
   if (waypointData.hints) {
-    // Delete existing hints
     const { error: deleteHintsError } = await supabase
       .from('hints')
       .delete()
@@ -191,7 +195,6 @@ export async function modifyWaypoint(waypointId: string, waypointData: Partial<W
       
     if (deleteHintsError) throw deleteHintsError;
     
-    // Insert new hints
     const hintsToInsert = waypointData.hints
       .filter(hint => hint.text.trim() !== '')
       .map(hint => ({

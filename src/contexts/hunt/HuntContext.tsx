@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Hunt, Waypoint } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
@@ -176,7 +177,12 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const addWaypoint = async (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => {
     try {
-      const { waypointData, hintsData } = await createWaypoint(huntId, waypoint);
+      // Cast latitude and longitude to string explicitly to satisfy TypeScript
+      const { waypointData, hintsData } = await createWaypoint(huntId, {
+        ...waypoint,
+        latitude: waypoint.latitude as unknown as string,
+        longitude: waypoint.longitude as unknown as string
+      });
       
       const newWaypoint: Waypoint = {
         id: waypointData.id,
@@ -217,7 +223,12 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const updateWaypoint = async (huntId: string, updatedWaypoint: Waypoint) => {
     try {
-      await modifyWaypoint(updatedWaypoint.id, updatedWaypoint);
+      // Cast latitude and longitude to string explicitly to satisfy TypeScript
+      await modifyWaypoint(updatedWaypoint.id, {
+        ...updatedWaypoint,
+        latitude: updatedWaypoint.latitude as unknown as string,
+        longitude: updatedWaypoint.longitude as unknown as string
+      });
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
