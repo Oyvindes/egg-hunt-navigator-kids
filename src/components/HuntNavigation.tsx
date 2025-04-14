@@ -15,15 +15,16 @@ import { Info } from 'lucide-react';
 
 const HuntNavigation = () => {
   const { latitude, longitude, isTracking, startTracking } = useLocation();
-  const { 
-    activeHunt, 
-    currentWaypoint, 
-    setWaypointFound, 
+  const {
+    activeHunt,
+    currentWaypoint,
+    setWaypointFound,
     setHintRevealed,
     moveToNextWaypoint,
     progressPercentage,
     isHuntCompleted,
-    isLoading
+    isLoading,
+    resetHunt
   } = useHunt();
   const [distance, setDistance] = useState<number | null>(null);
   const [processingRevealedHints, setProcessingRevealedHints] = useState<Set<string>>(new Set());
@@ -94,7 +95,7 @@ const HuntNavigation = () => {
         </div>
         <h2 className="text-2xl font-bold mb-2">Gratulerer!</h2>
         <p className="text-lg mb-4">Du har fullført påskejakten!</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
+        <Button variant="outline" onClick={() => resetHunt()}>
           Start på nytt
         </Button>
       </div>

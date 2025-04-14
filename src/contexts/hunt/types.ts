@@ -15,6 +15,7 @@ export interface HuntContextProps {
   setWaypointFound: (huntId: string, waypointId: string, found: boolean) => void;
   setHintRevealed: (huntId: string, waypointId: string, hintId: string, revealed: boolean) => void;
   moveToNextWaypoint: () => void;
+  resetHunt: () => void;
   progressPercentage: number;
   isHuntCompleted: boolean;
   isLoading: boolean;

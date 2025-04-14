@@ -30,6 +30,7 @@ const HuntContext = createContext<HuntContextProps>({
   setWaypointFound: () => {},
   setHintRevealed: () => {},
   moveToNextWaypoint: () => {},
+  resetHunt: () => {},
   progressPercentage: 0,
   isHuntCompleted: false,
   isLoading: true
@@ -381,6 +382,63 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
+  const resetHunt = async () => {
+    if (!activeHunt) return;
+    
+    try {
+      // Reset all waypoints to not found
+      const resetPromises = activeHunt.waypoints.map(async (waypoint) => {
+        // Reset the waypoint's found status
+        if (waypoint.found) {
+          await updateWaypointFoundStatus(waypoint.id, false);
+        }
+        
+        // Reset all revealed hints
+        const hintResetPromises = waypoint.hints.map(async (hint) => {
+          if (hint.revealed) {
+            await updateHintRevealedStatus(hint.id, false);
+          }
+        });
+        
+        await Promise.all(hintResetPromises);
+      });
+      
+      await Promise.all(resetPromises);
+      
+      // Update the local state with the reset data
+      setHunts(prevHunts =>
+        prevHunts.map(hunt => {
+          if (hunt.id === activeHunt.id) {
+            return {
+              ...hunt,
+              waypoints: hunt.waypoints.map(waypoint => ({
+                ...waypoint,
+                found: false,
+                hints: waypoint.hints.map(hint => ({
+                  ...hint,
+                  revealed: false
+                }))
+              }))
+            };
+          }
+          return hunt;
+        })
+      );
+      
+      toast({
+        title: "Påskejakt tilbakestilt",
+        description: "Påskejakten har blitt startet på nytt",
+      });
+    } catch (error) {
+      console.error('Error resetting hunt:', error);
+      toast({
+        title: "Feil ved tilbakestilling",
+        description: "Kunne ikke starte påskejakten på nytt",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     if (isHuntCompleted && activeHunt) {
       toast({
@@ -404,6 +462,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     setWaypointFound,
     setHintRevealed,
     moveToNextWaypoint,
+    resetHunt,
     progressPercentage,
     isHuntCompleted,
     isLoading
