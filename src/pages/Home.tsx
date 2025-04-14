@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import HuntNavigation from '@/components/HuntNavigation';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,7 @@ const Home = () => {
       
       <div className="flex flex-col items-center justify-center mb-6 relative z-10 text-center">
         <h1 className="text-3xl font-bold relative">
-          <span className="inline-block gold-3d-text">
+          <span className="gold-3d-text inline-block">
             Oscar og Heddas påskejakt!
             <span className="absolute -top-1 -right-2 animate-bounce-subtle">
               <Egg className="h-5 w-5 text-yellow-500" />

@@ -114,7 +114,7 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
   const latitudeString = waypoint.latitude.toString();
   const longitudeString = waypoint.longitude.toString();
   
-  // Fix: Correctly structure the insert call with a single object, not trying to use as an array
+  // Fix: Using a single object parameter for insert, not an array
   const { data: waypointData, error: waypointError } = await supabase
     .from('waypoints')
     .insert({

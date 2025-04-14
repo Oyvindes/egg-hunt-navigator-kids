@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -105,7 +106,7 @@ const Admin = () => {
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <Tabs defaultValue="hunts" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 rounded-none">
+            <TabsList className="w-full grid grid-cols-2 rounded-none px-2 py-2">
               <TabsTrigger 
                 value="hunts" 
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
