@@ -15,10 +15,10 @@
   }
 
   body {
-    @apply text-text-primary; // Ensure white text by default
+    @apply text-text-primary; /* Ensure white text by default */
   }
 
-  // Add utility classes to enforce white/bright text
+  /* Add utility classes to enforce white/bright text */
   .text-primary {
     @apply text-white;
   }
