@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,26 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Gold 3D text effect */
+.gold-3d-text {
+  color: #FFC107;
+  background: linear-gradient(to bottom, #f0d264 0%, #e2ba5c 40%, #bd8531 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  text-shadow: 
+    0 1px 0 #cca02c,
+    0 2px 0 #c49b2a,
+    0 3px 0 #bd9729,
+    0 4px 0 #b69127,
+    0 5px 0 #ad8a26,
+    0 6px 1px rgba(0, 0, 0, 0.1),
+    0 0 5px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 3px 5px rgba(0, 0, 0, 0.2),
+    0 5px 10px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5px;
 }
