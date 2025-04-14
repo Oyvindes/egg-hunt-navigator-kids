@@ -171,12 +171,12 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="starting-hint">Starthinst</Label>
+        <Label htmlFor="starting-hint">Starthint</Label>
         <Input
           id="starting-hint"
           value={startingHint}
           onChange={(e) => setStartingHint(e.target.value)}
-          placeholder="Skriv et starthinst som hjelper deltakerne i gang"
+          placeholder="Skriv et starthint som hjelper deltakerne i gang"
         />
       </div>
       
