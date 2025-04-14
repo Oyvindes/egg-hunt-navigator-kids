@@ -1,4 +1,3 @@
-
 import { Hunt, Waypoint, Hint } from '@/lib/types';
 import { supabase } from "@/integrations/supabase/client";
 

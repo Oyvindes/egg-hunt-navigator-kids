@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +8,7 @@ import HuntsList from '@/components/admin/HuntsList';
 import WaypointForm from '@/components/admin/WaypointForm';
 import WaypointsList from '@/components/admin/WaypointsList';
 import PinCodeEntry from '@/components/admin/PinCodeEntry';
-import { useHunt } from '@/contexts/HuntContext';
+import { useHunt } from '@/contexts/hunt';
 
 const Admin = () => {
   const navigate = useNavigate();

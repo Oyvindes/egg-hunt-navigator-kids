@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Hunt, Waypoint } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";

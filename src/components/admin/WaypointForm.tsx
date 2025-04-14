@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { useHunt } from '@/contexts/HuntContext';
+import { useHunt } from '@/contexts/hunt';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
