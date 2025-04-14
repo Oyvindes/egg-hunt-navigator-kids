@@ -17,22 +17,25 @@ CREATE INDEX IF NOT EXISTS photo_submissions_status_idx ON public.photo_submissi
 -- Enable Row Level Security (RLS) on the photo_submissions table
 ALTER TABLE public.photo_submissions ENABLE ROW LEVEL SECURITY;
 
--- Create a policy to allow read access to all authenticated users
-CREATE POLICY "Allow read access for all users" 
-ON public.photo_submissions 
-FOR SELECT 
+-- Create a policy to allow read access to all users (including anonymous)
+CREATE POLICY "Allow read access for all users"
+ON public.photo_submissions
+FOR SELECT
+TO anon
 USING (true);
 
--- Create a policy to allow insert for all authenticated users
-CREATE POLICY "Allow insert for all users" 
-ON public.photo_submissions 
-FOR INSERT 
+-- Create a policy to allow insert for all users (including anonymous)
+CREATE POLICY "Allow insert for all users"
+ON public.photo_submissions
+FOR INSERT
+TO anon
 WITH CHECK (true);
 
--- Create a policy to allow updates only for authenticated users and only to their own submissions
-CREATE POLICY "Allow update for submission owners" 
-ON public.photo_submissions 
-FOR UPDATE 
+-- Create a policy to allow updates for all users (including anonymous)
+CREATE POLICY "Allow update for all users"
+ON public.photo_submissions
+FOR UPDATE
+TO anon
 USING (true)
 WITH CHECK (true);
 

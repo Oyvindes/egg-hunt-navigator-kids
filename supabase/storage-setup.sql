@@ -12,27 +12,27 @@ ON storage.objects
 FOR SELECT
 USING (bucket_id = 'egg-hunt-photos');
 
--- Step 3: Allow authenticated users to upload files to the bucket
-CREATE POLICY "Auth Users Can Upload"
+-- Step 3: Allow anyone to upload files to the bucket (public upload access)
+CREATE POLICY "Anyone Can Upload"
 ON storage.objects
 FOR INSERT
-TO authenticated
+TO anon
 WITH CHECK (bucket_id = 'egg-hunt-photos');
 
--- Step 4: Allow file owners to update their files
-CREATE POLICY "File Owners Can Update"
+-- Step 4: Allow anyone to update files
+CREATE POLICY "Anyone Can Update"
 ON storage.objects
 FOR UPDATE
-TO authenticated
-USING (bucket_id = 'egg-hunt-photos' AND owner = auth.uid())
-WITH CHECK (bucket_id = 'egg-hunt-photos' AND owner = auth.uid());
+TO anon
+USING (bucket_id = 'egg-hunt-photos')
+WITH CHECK (bucket_id = 'egg-hunt-photos');
 
--- Step 5: Allow file owners to delete their files
-CREATE POLICY "File Owners Can Delete"
+-- Step 5: Allow anyone to delete files
+CREATE POLICY "Anyone Can Delete"
 ON storage.objects
 FOR DELETE
-TO authenticated
-USING (bucket_id = 'egg-hunt-photos' AND owner = auth.uid());
+TO anon
+USING (bucket_id = 'egg-hunt-photos');
 
 -- ALTERNATIVE METHOD:
 -- If you prefer using the Supabase Dashboard UI instead:
