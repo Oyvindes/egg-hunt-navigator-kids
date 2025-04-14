@@ -1,4 +1,8 @@
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
     --text-primary: 0 0% 100%; /* Pure white for dark backgrounds */
