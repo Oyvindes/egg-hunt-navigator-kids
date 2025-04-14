@@ -48,33 +48,39 @@ const Admin = () => {
         </Button>
       </div>
       
-      <div className="relative">
-        {/* Easter egg decorations */}
-        <div className="absolute -top-8 -right-6 w-16 h-16 rotate-12 opacity-70 egg-shadow animate-bounce-subtle">
-          <img src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/magic-wand_1fa84.png" alt="Magic wand" className="w-full h-full object-contain" />
-        </div>
-        
-        <Tabs defaultValue="hunts" className="card-glow bg-white rounded-lg p-4 shadow-md">
-          <TabsList className="grid w-full grid-cols-2 mb-4 bg-easter-yellow">
-            <TabsTrigger value="hunts" className="data-[state=active]:bg-primary data-[state=active]:text-white">Påskejakter</TabsTrigger>
-            <TabsTrigger value="waypoints" disabled={!activeHunt} className="data-[state=active]:bg-primary data-[state=active]:text-white">Poster</TabsTrigger>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <Tabs defaultValue="hunts" className="w-full">
+          <TabsList className="w-full grid grid-cols-2 rounded-none">
+            <TabsTrigger 
+              value="hunts" 
+              className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
+            >
+              Påskejakter
+            </TabsTrigger>
+            <TabsTrigger 
+              value="waypoints" 
+              disabled={!activeHunt} 
+              className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
+            >
+              Poster
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="hunts" className="space-y-4">
+          <TabsContent value="hunts" className="p-6 space-y-4">
             <HuntForm />
             <HuntsList />
           </TabsContent>
           
-          <TabsContent value="waypoints" className="space-y-4">
+          <TabsContent value="waypoints" className="p-6 space-y-4">
             {activeHunt && (
               <>
-                <div className="bg-easter-green rounded-lg p-4 shadow-md border-2 border-primary/50">
+                <div className="bg-easter-green/10 rounded-lg p-4 shadow-sm border border-primary/20">
                   <h2 className="font-semibold">Poster for: <span className="text-primary">{activeHunt.name}</span></h2>
                   
                   {!showAddWaypoint ? (
                     <Button 
                       onClick={() => setShowAddWaypoint(true)}
-                      className="w-full mt-4 bg-secondary hover:bg-secondary/80 text-white btn-bounce"
+                      className="w-full mt-4 bg-secondary hover:bg-secondary/80 text-white"
                     >
                       <Plus className="mr-2 h-4 w-4" /> Legg til ny post
                     </Button>
