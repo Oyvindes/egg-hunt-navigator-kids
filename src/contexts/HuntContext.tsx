@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Hunt, Waypoint, Hint } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
@@ -54,12 +53,10 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
-  // Fetch hunts from Supabase when the component mounts
   useEffect(() => {
     const fetchHunts = async () => {
       setIsLoading(true);
       try {
-        // Fetch all hunts
         const { data: huntsData, error: huntsError } = await supabase
           .from('hunts')
           .select('*')
@@ -69,7 +66,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
         const completeHunts: Hunt[] = [];
         
-        // For each hunt, fetch the waypoints and hints
         for (const hunt of huntsData) {
           const { data: waypointsData, error: waypointsError } = await supabase
             .from('waypoints')
@@ -81,7 +77,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
           
           const waypoints: Waypoint[] = [];
           
-          // For each waypoint, fetch the hints
           for (const waypoint of waypointsData) {
             const { data: hintsData, error: hintsError } = await supabase
               .from('hints')
@@ -119,7 +114,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
         setHunts(completeHunts);
         
-        // Set active hunt if there's at least one hunt
         if (completeHunts.length > 0) {
           const activeHunt = completeHunts.find(h => h.active);
           setActiveHuntId(activeHunt ? activeHunt.id : completeHunts[0].id);
@@ -140,40 +134,31 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     fetchHunts();
   }, [toast]);
   
-  // Compute the active hunt
   const activeHunt = hunts.find(hunt => hunt.id === activeHuntId) || null;
-  
-  // Compute the current waypoint (the first non-found waypoint)
   const currentWaypoint = activeHunt?.waypoints.find(wp => !wp.found) || null;
   
-  // Calculate progress percentage
   const totalWaypoints = activeHunt?.waypoints.length || 0;
   const foundWaypoints = activeHunt?.waypoints.filter(wp => wp.found).length || 0;
   const progressPercentage = totalWaypoints > 0 ? (foundWaypoints / totalWaypoints) * 100 : 0;
   
-  // Check if hunt is completed
   const isHuntCompleted = totalWaypoints > 0 && foundWaypoints === totalWaypoints;
   
-  // Set the active hunt
   const setActiveHunt = async (huntId: string) => {
     const huntExists = hunts.some(hunt => hunt.id === huntId);
     if (huntExists) {
       setActiveHuntId(huntId);
       
       try {
-        // Update all hunts to inactive
         await supabase
           .from('hunts')
           .update({ active: false })
           .neq('id', huntId);
           
-        // Set the selected hunt to active
         await supabase
           .from('hunts')
           .update({ active: true })
           .eq('id', huntId);
           
-        // Update the local state
         setHunts(prevHunts => 
           prevHunts.map(hunt => ({
             ...hunt,
@@ -191,10 +176,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Add a new hunt
   const addHunt = async (hunt: Omit<Hunt, "id">) => {
     try {
-      // Insert the new hunt
       const { data, error } = await supabase
         .from('hunts')
         .insert({ 
@@ -228,10 +211,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Update an existing hunt
   const updateHunt = async (updatedHunt: Hunt) => {
     try {
-      // Update the hunt in the database
       const { error } = await supabase
         .from('hunts')
         .update({
@@ -243,7 +224,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (error) throw error;
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => 
           hunt.id === updatedHunt.id ? updatedHunt : hunt
@@ -259,11 +239,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Delete a hunt
   const deleteHunt = async (huntId: string) => {
     try {
-      // Delete the hunt from the database
-      // Note: Waypoints and hints will be automatically deleted due to CASCADE
       const { error } = await supabase
         .from('hunts')
         .delete()
@@ -271,10 +248,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (error) throw error;
       
-      // Update the local state
       setHunts(prevHunts => prevHunts.filter(hunt => hunt.id !== huntId));
       
-      // If the active hunt is deleted, set the first available hunt as active
       if (activeHuntId === huntId) {
         const remainingHunts = hunts.filter(hunt => hunt.id !== huntId);
         setActiveHuntId(remainingHunts[0]?.id || null);
@@ -294,17 +269,15 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Add a waypoint to a hunt
   const addWaypoint = async (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => {
     try {
-      // Insert the waypoint
       const { data: waypointData, error: waypointError } = await supabase
         .from('waypoints')
         .insert({
           hunt_id: huntId,
           name: waypoint.name,
-          latitude: waypoint.latitude,
-          longitude: waypoint.longitude,
+          latitude: waypoint.latitude.toString(),
+          longitude: waypoint.longitude.toString(),
           order_number: waypoint.order,
           starting_hint: waypoint.startingHint || null,
           found: false
@@ -314,7 +287,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
       
       if (waypointError) throw waypointError;
       
-      // Insert the hints
       if (waypoint.hints && waypoint.hints.length > 0) {
         const hintsToInsert = waypoint.hints
           .filter(hint => hint.text.trim() !== '')
@@ -334,7 +306,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         }
       }
       
-      // Refetch the hunt to get the updated waypoints with hints
       const { data: refetchedWaypointData, error: refetchError } = await supabase
         .from('waypoints')
         .select('*')
@@ -366,7 +337,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         startingHint: refetchedWaypointData.starting_hint || undefined
       };
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
           if (hunt.id === huntId) {
@@ -388,16 +358,14 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Update a waypoint
   const updateWaypoint = async (huntId: string, updatedWaypoint: Waypoint) => {
     try {
-      // Update the waypoint in the database
       const { error: waypointError } = await supabase
         .from('waypoints')
         .update({
           name: updatedWaypoint.name,
-          latitude: updatedWaypoint.latitude,
-          longitude: updatedWaypoint.longitude,
+          latitude: updatedWaypoint.latitude.toString(),
+          longitude: updatedWaypoint.longitude.toString(),
           order_number: updatedWaypoint.order,
           starting_hint: updatedWaypoint.startingHint || null,
           found: updatedWaypoint.found
@@ -406,8 +374,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (waypointError) throw waypointError;
       
-      // Update hints - this is more complex as we need to add/update/remove hints
-      // For simplicity, we'll delete all existing hints and add the new ones
       const { error: deleteHintsError } = await supabase
         .from('hints')
         .delete()
@@ -434,7 +400,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         }
       }
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
           if (hunt.id === huntId) {
@@ -458,11 +423,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Delete a waypoint
   const deleteWaypoint = async (huntId: string, waypointId: string) => {
     try {
-      // Delete the waypoint from the database
-      // Hints will be automatically deleted due to CASCADE
       const { error } = await supabase
         .from('waypoints')
         .delete()
@@ -470,7 +432,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (error) throw error;
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
           if (hunt.id === huntId) {
@@ -492,10 +453,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Mark a waypoint as found
   const setWaypointFound = async (huntId: string, waypointId: string, found: boolean) => {
     try {
-      // Update the waypoint in the database
       const { error } = await supabase
         .from('waypoints')
         .update({ found })
@@ -503,7 +462,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (error) throw error;
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
           if (hunt.id === huntId) {
@@ -537,10 +495,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Mark a hint as revealed
   const setHintRevealed = async (huntId: string, waypointId: string, hintId: string, revealed: boolean) => {
     try {
-      // Update the hint in the database
       const { error } = await supabase
         .from('hints')
         .update({ revealed })
@@ -548,7 +504,6 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
       if (error) throw error;
       
-      // Update the local state
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
           if (hunt.id === huntId) {
@@ -590,23 +545,18 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     }
   };
 
-  // Move to the next waypoint
   const moveToNextWaypoint = async () => {
     if (!activeHunt || !currentWaypoint) return;
     
-    // Sort waypoints by order
     const sortedWaypoints = [...activeHunt.waypoints].sort((a, b) => a.order - b.order);
     
-    // Find the index of the current waypoint
     const currentIndex = sortedWaypoints.findIndex(wp => wp.id === currentWaypoint.id);
     
-    // If current waypoint is found, mark it as found
     if (currentIndex !== -1 && !sortedWaypoints[currentIndex].found) {
       await setWaypointFound(activeHunt.id, currentWaypoint.id, true);
     }
   };
 
-  // Monitor for hunt completion
   useEffect(() => {
     if (isHuntCompleted && activeHunt) {
       toast({
