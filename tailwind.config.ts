@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,48 +19,48 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
+				border: 'hsl(240 3.7% 15.9%)', // Dark border
+				input: 'hsl(240 3.7% 15.9%)', // Dark input
+				ring: 'hsl(240 4.9% 83.9%)', // Slightly lighter ring
+				background: 'hsl(240 10% 3.9%)', // Very dark background
+				foreground: 'hsl(0 0% 98%)', // Almost white text
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: 'hsl(263 70% 40%)', // Darker, more muted primary
+					foreground: 'hsl(222.2 47.4% 11.2%)'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: 'hsl(198 93% 50%)', // Brighter secondary for contrast
+					foreground: 'hsl(210 40% 98%)'
 				},
 				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					DEFAULT: 'hsl(0 62.8% 30.6%)', // Darker destructive color
+					foreground: 'hsl(0 0% 98%)'
 				},
 				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					DEFAULT: 'hsl(240 3.7% 15.9%)', // Dark muted background
+					foreground: 'hsl(240 5% 64.9%)' // Lighter muted text
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: 'hsl(240 3.7% 15.9%)', // Dark accent
+					foreground: 'hsl(0 0% 98%)'
 				},
 				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
+					DEFAULT: 'hsl(240 10% 3.9%)', // Very dark popover
+					foreground: 'hsl(0 0% 98%)'
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
+					DEFAULT: 'hsl(240 10% 3.9%)', // Very dark card
+					foreground: 'hsl(0 0% 98%)'
 				},
 				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+					DEFAULT: 'hsl(240 5.9% 10%)', // Extremely dark sidebar
+					foreground: 'hsl(240 4.8% 95.9%)', // Almost white sidebar text
+					primary: 'hsl(224.3 76.3% 48%)', // Bright sidebar primary
+					'primary-foreground': 'hsl(0 0% 100%)',
+					accent: 'hsl(240 3.7% 15.9%)', // Dark sidebar accent
+					'accent-foreground': 'hsl(240 4.8% 95.9%)',
+					border: 'hsl(240 3.7% 15.9%)', // Dark sidebar border
+					ring: 'hsl(217.2 91.2% 59.8%)' // Bright sidebar ring
 				}
 			},
 			borderRadius: {
