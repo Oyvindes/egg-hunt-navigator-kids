@@ -12,9 +12,9 @@ const HintsList = ({ hints }: HintsListProps) => {
   const revealedHints = hints.filter(hint => hint.revealed);
   
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-      <h3 className="text-lg font-semibold mb-3 flex items-center">
-        <LightbulbIcon className="h-5 w-5 text-yellow-400 mr-2" />
+    <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
+      <h3 className="text-lg font-semibold mb-3 flex items-center text-gray-200">
+        <LightbulbIcon className="h-5 w-5 text-yellow-300 mr-2" />
         <span>Hint ({revealedHints.length}/{hints.length})</span>
       </h3>
       
@@ -24,10 +24,14 @@ const HintsList = ({ hints }: HintsListProps) => {
             <li 
               key={hint.id}
               className={cn(
-                "p-3 rounded-md animate-fade-in border-l-4",
-                index === revealedHints.length - 1 
-                  ? "bg-yellow-50 border-yellow-400" 
-                  : ["bg-green-50 border-green-400", "bg-blue-50 border-blue-400", "bg-purple-50 border-purple-400"][index % 3]
+                "p-3 rounded-lg animate-fade-in border-l-4 backdrop-blur-sm shadow-md",
+                index === revealedHints.length - 1
+                  ? "bg-yellow-500/20 border-yellow-400/70 text-yellow-100"
+                  : [
+                      "bg-green-500/20 border-green-400/70 text-green-100",
+                      "bg-blue-500/20 border-blue-400/70 text-blue-100",
+                      "bg-purple-500/20 border-purple-400/70 text-purple-100"
+                    ][index % 3]
               )}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
@@ -36,8 +40,8 @@ const HintsList = ({ hints }: HintsListProps) => {
           ))}
         </ul>
       ) : (
-        <div className="text-center p-6">
-          <p className="text-gray-500">Gå nærmere for å få hint!</p>
+        <div className="text-center p-6 bg-yellow-500/10 backdrop-blur-sm rounded-lg border border-yellow-500/20">
+          <p className="text-gray-200">Gå nærmere for å få hint!</p>
         </div>
       )}
     </div>

@@ -151,7 +151,7 @@ const HuntNavigation = () => {
   if (isHuntCompleted || localHuntCompleted) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center py-8">
-        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg border-2 border-yellow-400">
+        <div className="w-full max-w-md p-6 bg-black/50 backdrop-blur-sm rounded-xl shadow-2xl border-2 border-yellow-400/70 transform hover:scale-[1.01] transition-transform duration-300">
           <div className="flex justify-center mb-4">
             <div className="relative">
               <img
@@ -160,21 +160,18 @@ const HuntNavigation = () => {
                 className="w-28 h-28 object-contain animate-bounce-subtle"
               />
               <img
-                src="https://emojipedia-us.s3.amazonaws.com/source/microsoft-teams/337/hatching-chick_1f423.png"
+                src="https://em-content.zobj.net/thumbs/120/apple/354/hatching-chick_1f423.png"
                 alt="Easter chick"
                 className="w-16 h-16 object-contain absolute -bottom-2 -right-2 animate-pulse"
               />
             </div>
           </div>
           
-          <h2 className="text-2xl font-bold mb-2 text-yellow-600">Hurra! Gratulerer!</h2>
-          <p className="text-lg mb-4">Du har fullført påskejakten!</p>
+          <h2 className="text-2xl font-bold mb-2 text-yellow-400">Gratulerer Hedda og Oscar!</h2>
+          <p className="text-lg mb-2 text-white">Kos dere med godteriet! Glad i dere!</p>
+          <p className="text-lg mb-4 text-pink-300 font-bold">Hilsen Pappa ❤</p>
           
-          <div className="py-3 px-4 bg-yellow-50 rounded-lg mb-4">
-            <p className="text-yellow-700">
-              Fantastisk jobbet! Du har funnet alle påskeeggene og fullført påskejakten!
-            </p>
-          </div>
+          {/* Yellow info box removed */}
           
           <div className="flex justify-center">
             <Button
@@ -183,7 +180,7 @@ const HuntNavigation = () => {
                 setLocalHuntCompleted(false);
                 resetHunt();
               }}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none rounded-full shadow-lg transform hover:translate-y-[-2px] transition-all duration-300"
             >
               Start på nytt
             </Button>
@@ -295,7 +292,7 @@ const HuntNavigation = () => {
                       setCheckingSubmission(false);
                     }
                   }}
-                  className="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-100 border-yellow-500/30"
+                  className="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-100 border-yellow-500/30 rounded-full"
                 >
                   Sjekk status
                 </Button>
@@ -305,7 +302,7 @@ const HuntNavigation = () => {
             <Button
               variant="outline"
               onClick={() => setShowPhotoSubmit(true)}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none shadow-lg transform hover:translate-y-[-2px] transition-all duration-300 rounded-lg"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none shadow-lg transform hover:translate-y-[-2px] transition-all duration-300 rounded-full"
             >
               Jeg har funnet påskeegget! Ta bilde
             </Button>

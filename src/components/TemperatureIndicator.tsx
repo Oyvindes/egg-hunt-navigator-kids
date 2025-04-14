@@ -12,15 +12,15 @@ const TemperatureIndicator = ({ distance }: TemperatureIndicatorProps) => {
   const getIndicatorClasses = () => {
     switch (temperature) {
       case 'ice':
-        return 'bg-blue-200 animate-pulse-ice border border-blue-300';
+        return 'bg-blue-500/30 animate-pulse-ice border border-blue-400/30 text-blue-100';
       case 'cold':
-        return 'bg-blue-100 animate-pulse-cold border border-blue-200';
+        return 'bg-blue-400/20 animate-pulse-cold border border-blue-300/30 text-blue-100';
       case 'warm':
-        return 'bg-red-100 animate-pulse-warm border border-red-200';
+        return 'bg-red-400/20 animate-pulse-warm border border-red-300/30 text-red-100';
       case 'hot':
-        return 'bg-red-200 animate-pulse-hot border border-red-300';
+        return 'bg-red-500/30 animate-pulse-hot border border-red-400/30 text-red-100';
       default:
-        return 'bg-gray-100 border border-gray-200';
+        return 'bg-gray-500/20 border border-gray-400/30 text-gray-200';
     }
   };
   
@@ -40,7 +40,7 @@ const TemperatureIndicator = ({ distance }: TemperatureIndicatorProps) => {
   };
 
   return (
-    <div className={`rounded-lg p-4 shadow-md text-center ${getIndicatorClasses()}`}>
+    <div className={`rounded-xl p-4 shadow-2xl text-center backdrop-blur-sm transform hover:scale-[1.01] transition-transform duration-300 ${getIndicatorClasses()}`}>
       <h3 className="text-xl font-bold mb-1 flex items-center justify-center">
         <Thermometer className="h-5 w-5 mr-2" />
         {getTemperatureText()}

@@ -79,8 +79,8 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
   };
   
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md">
-      <h3 className="text-lg font-semibold mb-3">Ta bilde av påskeegget</h3>
+    <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
+      <h3 className="text-lg font-semibold mb-3 text-white">Ta bilde av påskeegget</h3>
       
       <input 
         type="file"
@@ -92,21 +92,21 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
       />
       
       {!photo ? (
-        <div 
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 mb-4 flex flex-col items-center justify-center cursor-pointer hover:border-primary"
+        <div
+          className="border-2 border-dashed border-gray-400/50 rounded-xl p-8 mb-4 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-400/70 transition-colors duration-300 bg-black/30 backdrop-blur-sm"
           onClick={handleTakePhoto}
         >
-          <Camera className="h-16 w-16 text-gray-400 mb-3" />
-          <p className="text-sm text-gray-500 text-center">
+          <Camera className="h-16 w-16 text-gray-300/90 mb-3" />
+          <p className="text-sm text-gray-300 text-center">
             Klikk for å åpne kamera eller velge et bilde
           </p>
         </div>
       ) : (
         <div className="mb-4 relative">
-          <img 
-            src={photo} 
-            alt="Captured egg" 
-            className="w-full rounded-lg" 
+          <img
+            src={photo}
+            alt="Captured egg"
+            className="w-full rounded-xl shadow-lg"
           />
           <Button
             variant="destructive"
@@ -122,7 +122,7 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
       <div className="flex space-x-3">
         <Button
           variant="outline"
-          className="flex-1"
+          className="flex-1 rounded-full border-gray-400/50 text-gray-200 hover:bg-gray-700/50 hover:text-white transition-colors duration-300"
           onClick={onCancel}
         >
           Avbryt
@@ -130,7 +130,7 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
         
         <Button
           variant="default"
-          className="flex-1 bg-primary"
+          className="flex-1 bg-purple-500 hover:bg-purple-600 text-white rounded-full transform hover:translate-y-[-2px] transition-all duration-300 shadow-lg"
           disabled={!photo || isSubmitting}
           onClick={handleSubmit}
         >
