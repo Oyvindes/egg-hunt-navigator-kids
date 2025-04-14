@@ -33,6 +33,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --text-primary: 0 0% 20%; /* Dark text for light backgrounds */
+    --text-secondary: 198 93% 30%; /* Darker blue for interactive elements */
+    --text-accent: #6b4faa; /* More muted purple for headings */
+    --text-highlight: #6b4faa; /* Consistent accent color */
   }
 
   .dark {
@@ -64,10 +69,10 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    --text-primary: 0 0% 98%;
-    --text-secondary: 198 93% 50%;
-    --text-accent: 263 70% 70%;
-    --text-highlight: 263 70% 60%;
+    --text-primary: 0 0% 98%; /* Light text for dark backgrounds */
+    --text-secondary: 198 93% 60%; /* Brighter blue for interactive elements */
+    --text-accent: #9b87f5; /* Brighter purple for headings */
+    --text-highlight: #8B5CF6; /* Vivid purple for emphasis */
   }
 }
 
@@ -76,8 +81,9 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-text-primary;
+    @apply bg-background text-foreground;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: hsl(var(--text-primary));
   }
   
   .egg-shadow {
@@ -87,6 +93,20 @@
   
   .compass-arrow {
     transition: transform 0.5s ease;
+  }
+
+  /* Add utility classes for text colors */
+  .text-primary {
+    color: hsl(var(--text-primary));
+  }
+  .text-secondary {
+    color: hsl(var(--text-secondary));
+  }
+  .text-accent {
+    color: hsl(var(--text-accent));
+  }
+  .text-highlight {
+    color: hsl(var(--text-highlight));
   }
 }
 

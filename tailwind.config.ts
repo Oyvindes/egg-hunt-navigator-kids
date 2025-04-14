@@ -61,10 +61,10 @@ export default {
           border: 'hsl(240 3.7% 15.9%)', // Dark sidebar border
           ring: 'hsl(217.2 91.2% 59.8%)' // Bright sidebar ring
         },
-        'text-primary': '#F1F1F1', // Light Gray for primary text
-        'text-secondary': '#1EAEDB', // Bright Blue for interactive elements
-        'text-accent': '#9b87f5', // Primary Purple for headings
-        'text-highlight': '#8B5CF6' // Vivid Purple for emphasis
+        'text-primary': 'hsl(var(--text-primary) / <alpha-value>)', // Light Gray for primary text
+        'text-secondary': 'hsl(var(--text-secondary) / <alpha-value>)', // Bright Blue for interactive elements
+        'text-accent': 'hsl(var(--text-accent) / <alpha-value>)', // Primary Purple for headings
+        'text-highlight': 'hsl(var(--text-highlight) / <alpha-value>)' // Vivid Purple for emphasis
       },
       borderRadius: {
         lg: 'var(--radius)',
