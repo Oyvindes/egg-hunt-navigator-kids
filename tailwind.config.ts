@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,11 +25,11 @@ export default {
         background: 'hsl(240 10% 3.9%)', // Very dark background
         foreground: 'hsl(0 0% 98%)', // Almost white text
         primary: {
-          DEFAULT: 'hsl(263 70% 40%)', // Darker, more muted primary
+          DEFAULT: 'hsl(263 70% 50%)', // Brighter purple to match the image
           foreground: 'hsl(222.2 47.4% 11.2%)'
         },
         secondary: {
-          DEFAULT: 'hsl(198 93% 50%)', // Brighter secondary for contrast
+          DEFAULT: 'hsl(198 93% 55%)', // Brighter blue to match the image
           foreground: 'hsl(210 40% 98%)'
         },
         destructive: {
@@ -40,7 +41,7 @@ export default {
           foreground: 'hsl(240 5% 64.9%)' // Lighter muted text
         },
         accent: {
-          DEFAULT: 'hsl(240 3.7% 15.9%)', // Dark accent
+          DEFAULT: 'hsl(263 70% 50%)', // Purple accent to match the image
           foreground: 'hsl(0 0% 98%)'
         },
         popover: {
@@ -48,13 +49,13 @@ export default {
           foreground: 'hsl(0 0% 98%)'
         },
         card: {
-          DEFAULT: 'hsl(240 10% 3.9%)', // Very dark card
+          DEFAULT: 'hsl(240 6% 10%)', // Dark card background to match the image
           foreground: 'hsl(0 0% 98%)'
         },
         sidebar: {
           DEFAULT: 'hsl(240 5.9% 10%)', // Extremely dark sidebar
           foreground: 'hsl(240 4.8% 95.9%)', // Almost white sidebar text
-          primary: 'hsl(224.3 76.3% 48%)', // Bright sidebar primary
+          primary: 'hsl(263 76.3% 55%)', // Bright purple sidebar primary
           'primary-foreground': 'hsl(0 0% 100%)',
           accent: 'hsl(240 3.7% 15.9%)', // Dark sidebar accent
           'accent-foreground': 'hsl(240 4.8% 95.9%)',

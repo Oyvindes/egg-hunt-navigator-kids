@@ -11,11 +11,11 @@ const Home = () => {
   const { activeHunt } = useHunt();
   
   return (
-    <div className="container max-w-md mx-auto p-4">
+    <div className="min-h-screen bg-background container max-w-md mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">Påskejakt</h1>
-          {activeHunt && <p className="text-sm bg-yellow-100 inline-block px-2 py-1 rounded-full">{activeHunt.name}</p>}
+          <h1 className="text-3xl font-bold text-primary">Påskejakt</h1>
+          {activeHunt && <p className="text-sm bg-primary/20 text-primary inline-block px-2 py-1 rounded-full">{activeHunt.name}</p>}
         </div>
         <Button 
           variant="ghost" 
@@ -28,7 +28,7 @@ const Home = () => {
       </div>
       
       <div className="relative">
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100">
+        <div className="bg-card rounded-lg p-6 shadow-lg border border-gray-800">
           <HuntNavigation />
         </div>
       </div>

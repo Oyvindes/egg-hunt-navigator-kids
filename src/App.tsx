@@ -17,15 +17,17 @@ const App = () => (
     <TooltipProvider>
       <LocationProvider>
         <HuntProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <div className="dark min-h-screen bg-background">
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </div>
         </HuntProvider>
       </LocationProvider>
     </TooltipProvider>

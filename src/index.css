@@ -9,6 +9,9 @@
     --text-secondary: 198 93% 80%; /* Brighter, more visible blue */
     --text-accent: 263 70% 85%; /* Lighter purple for accents */
     --text-highlight: 263 70% 90%; /* Even brighter highlight */
+    --background: 240 10% 8%; /* Dark background */
+    --foreground: 0 0% 98%; /* Light text */
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -19,7 +22,8 @@
   }
 
   body {
-    @apply text-text-primary; /* Ensure white text by default */
+    @apply bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   /* Add utility classes to enforce white/bright text */
@@ -34,5 +38,28 @@
   }
   .text-highlight {
     @apply text-white opacity-95;
+  }
+  
+  /* Card styling for a more pronounced effect */
+  .card-dark {
+    @apply bg-card border border-gray-800 shadow-lg;
+  }
+  
+  /* Button styling for better visibility */
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary/90;
+  }
+  
+  /* Progress bar styling */
+  .progress-dark {
+    @apply bg-primary/30;
+  }
+  
+  .progress-dark .progress-value {
+    @apply bg-primary;
   }
 }
