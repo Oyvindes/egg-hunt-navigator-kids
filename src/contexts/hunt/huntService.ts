@@ -1,3 +1,4 @@
+
 import { Hunt, Waypoint, Hint } from '@/lib/types';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -113,6 +114,7 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
   const latitudeString = waypoint.latitude.toString();
   const longitudeString = waypoint.longitude.toString();
   
+  // Fix: Correctly structure the insert call with a single object, not trying to use as an array
   const { data: waypointData, error: waypointError } = await supabase
     .from('waypoints')
     .insert({
@@ -170,19 +172,25 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
 }
 
 export async function modifyWaypoint(waypointId: string, waypointData: Partial<Waypoint> & { latitude?: number; longitude?: number }) {
-  const latitudeString = waypointData.latitude?.toString();
-  const longitudeString = waypointData.longitude?.toString();
+  // Fix: Convert latitude and longitude to strings before storing them
+  const updateData: any = {
+    name: waypointData.name,
+    order_number: waypointData.order,
+    starting_hint: waypointData.startingHint || null,
+    found: waypointData.found
+  };
+  
+  if (waypointData.latitude !== undefined) {
+    updateData.latitude = waypointData.latitude.toString();
+  }
+  
+  if (waypointData.longitude !== undefined) {
+    updateData.longitude = waypointData.longitude.toString();
+  }
   
   const { error: waypointError } = await supabase
     .from('waypoints')
-    .update({
-      name: waypointData.name,
-      latitude: latitudeString,
-      longitude: longitudeString,
-      order_number: waypointData.order,
-      starting_hint: waypointData.startingHint || null,
-      found: waypointData.found
-    })
+    .update(updateData)
     .eq('id', waypointId);
     
   if (waypointError) throw waypointError;
