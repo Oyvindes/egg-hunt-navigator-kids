@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Easter themed colors
+				easter: {
+					yellow: "#FEF7CD",
+					pink: "#FFDEE2",
+					blue: "#D3E4FD",
+					green: "#F2FCE2",
+					purple: "#E5DEFF",
 				}
 			},
 			borderRadius: {
@@ -84,11 +93,36 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-warm': {
+					'0%, 100%': { backgroundColor: 'rgb(254, 202, 202)' },
+					'50%': { backgroundColor: 'rgb(254, 226, 226)' }
+				},
+				'pulse-hot': {
+					'0%, 100%': { backgroundColor: 'rgb(252, 165, 165)' },
+					'50%': { backgroundColor: 'rgb(248, 113, 113)' }
+				},
+				'pulse-cold': {
+					'0%, 100%': { backgroundColor: 'rgb(191, 219, 254)' },
+					'50%': { backgroundColor: 'rgb(219, 234, 254)' }
+				},
+				'pulse-ice': {
+					'0%, 100%': { backgroundColor: 'rgb(147, 197, 253)' },
+					'50%': { backgroundColor: 'rgb(96, 165, 250)' }
+				},
+				'bounce-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-warm': 'pulse-warm 2s infinite',
+				'pulse-hot': 'pulse-hot 1s infinite',
+				'pulse-cold': 'pulse-cold 2s infinite',
+				'pulse-ice': 'pulse-ice 1s infinite',
+				'bounce-subtle': 'bounce-subtle 2s infinite'
 			}
 		}
 	},
