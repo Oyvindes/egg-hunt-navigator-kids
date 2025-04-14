@@ -1,4 +1,3 @@
-
 export interface Waypoint {
   id: string;
   name: string;
@@ -7,6 +6,7 @@ export interface Waypoint {
   order: number;
   hints: Hint[];
   found: boolean;
+  startingHint?: string; // New optional field for the starting hint
 }
 
 export interface Hint {

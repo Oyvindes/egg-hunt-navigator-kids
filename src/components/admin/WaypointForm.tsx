@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useHunt } from '@/contexts/HuntContext';
 import { Input } from '@/components/ui/input';
@@ -17,7 +16,8 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [order, setOrder] = useState('');
-  
+  const [startingHint, setStartingHint] = useState('');
+
   const [hints, setHints] = useState<Omit<Hint, "id" | "revealed">[]>([
     { text: '', distanceThreshold: 100 },
     { text: '', distanceThreshold: 50 },
@@ -45,6 +45,7 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
       longitude: parseFloat(longitude),
       order: parseInt(order),
       hints: formattedHints,
+      startingHint: startingHint.trim() || undefined,
     });
     
     // Reset form
@@ -52,6 +53,7 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
     setLatitude('');
     setLongitude('');
     setOrder('');
+    setStartingHint('');
     setHints([
       { text: '', distanceThreshold: 100 },
       { text: '', distanceThreshold: 50 },
@@ -75,7 +77,6 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
     return maxOrder + 1;
   };
 
-  // Set a suggested order number when the component mounts
   React.useEffect(() => {
     setOrder(getNextOrderNumber().toString());
   }, [activeHunt?.waypoints.length]);
@@ -167,6 +168,16 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
             </div>
           </div>
         ))}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="starting-hint">Starthinst</Label>
+        <Input
+          id="starting-hint"
+          value={startingHint}
+          onChange={(e) => setStartingHint(e.target.value)}
+          placeholder="Skriv et starthinst som hjelper deltakerne i gang"
+        />
       </div>
       
       <Button type="submit" className="w-full">Legg til post</Button>

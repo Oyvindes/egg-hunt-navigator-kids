@@ -10,6 +10,7 @@ import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
+import { Info } from 'lucide-react';
 
 const HuntNavigation = () => {
   const { latitude, longitude, isTracking, startTracking } = useLocation();
@@ -107,6 +108,13 @@ const HuntNavigation = () => {
           <Progress value={progressPercentage} className="h-3" />
           <p className="text-sm text-gray-500 mt-1">{Math.round(progressPercentage)}% fullført</p>
         </div>
+        
+        {currentWaypoint.startingHint && (
+          <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r text-sm flex items-center">
+            <Info className="h-5 w-5 mr-2 text-blue-500" />
+            <span>{currentWaypoint.startingHint}</span>
+          </div>
+        )}
       </div>
       
       {distance !== null && distance > 200 ? (

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useHunt } from '@/contexts/HuntContext';
 import { Button } from '@/components/ui/button';
@@ -93,6 +92,13 @@ const WaypointsList = ({ huntId, onEdit }: WaypointsListProps) => {
                   </div>
                 ))
               }
+            </div>
+          )}
+          
+          {waypoint.startingHint && (
+            <div className="mt-3 bg-gray-50 p-2 rounded text-sm">
+              <span className="font-medium">Starthinst: </span>
+              {waypoint.startingHint}
             </div>
           )}
         </div>
