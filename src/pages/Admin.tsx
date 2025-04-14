@@ -17,11 +17,20 @@ const Admin = () => {
   const [showAddWaypoint, setShowAddWaypoint] = useState(false);
   const [editingWaypoint, setEditingWaypoint] = useState<Waypoint | null>(null);
   
+  const handleBackClick = () => {
+    navigate('/');
+  };
+  
   return (
     <div className="container max-w-md mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="bg-easter-pink hover:bg-easter-purple rounded-full">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleBackClick} 
+            className="bg-easter-pink hover:bg-easter-purple rounded-full"
+          >
             <ArrowLeft className="h-5 w-5 text-white" />
           </Button>
           <h1 className="text-2xl font-bold ml-2 text-primary flex items-center">
@@ -29,6 +38,14 @@ const Admin = () => {
             <Sparkles className="h-4 w-4 ml-2 text-yellow-400" />
           </h1>
         </div>
+        
+        <Button
+          variant="outline"
+          onClick={handleBackClick}
+          className="text-primary border-primary hover:bg-primary/10"
+        >
+          Tilbake til hovedsiden
+        </Button>
       </div>
       
       <div className="relative">
