@@ -10,9 +10,9 @@ const DistanceMeter = ({ distance }: DistanceMeterProps) => {
   const formattedDistance = formatDistance(distance);
 
   return (
-    <div className="bg-easter-blue rounded-lg p-4 shadow-md text-center border-2 border-secondary">
+    <div className="bg-white rounded-lg p-4 shadow-md text-center border border-gray-200">
       <h3 className="text-lg font-semibold mb-1 flex items-center justify-center">
-        <Ruler className="h-5 w-5 mr-2 text-secondary" />
+        <Ruler className="h-5 w-5 mr-2 text-blue-500" />
         Avstand
       </h3>
       <p className="text-2xl font-bold text-primary">{formattedDistance}</p>

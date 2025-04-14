@@ -62,20 +62,6 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				// Easter themed colors - expanded for youth appeal
-				easter: {
-					yellow: "#FEF7CD", // Soft yellow
-					pink: "#FFDEE2",   // Soft pink
-					blue: "#D3E4FD",   // Soft blue
-					green: "#F2FCE2",  // Soft green
-					purple: "#E5DEFF", // Soft purple
-					orange: "#FFE0CC", // Soft orange
-					mint: "#C8F7DC",   // Mint green
-					coral: "#FFD8CC",  // Coral
-					lavender: "#E0D6FF", // Lavender
-					aqua: "#CCFAFF",   // Aqua
-					lime: "#E8FFB8",   // Lime
 				}
 			},
 			borderRadius: {

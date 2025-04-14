@@ -29,10 +29,10 @@ const CompassArrow = ({ targetLatitude, targetLongitude }: CompassArrowProps) =>
 
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="relative w-28 h-28 bg-gradient-to-br from-easter-blue to-easter-aqua rounded-full flex items-center justify-center shadow-lg border-4 border-primary">
-        <Compass className="absolute opacity-20 w-20 h-20 text-gray-500 animate-spin-slow" />
+      <div className="relative w-28 h-28 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+        <Compass className="absolute opacity-30 w-20 h-20 text-white animate-spin-slow" />
         <ArrowUp 
-          className="compass-arrow text-primary h-16 w-16 z-10 drop-shadow-md"
+          className="compass-arrow text-white h-16 w-16 z-10 drop-shadow-md"
           style={{ transform: `rotate(${arrowRotation}deg)` }}
         />
       </div>

@@ -12,11 +12,9 @@ const HintsList = ({ hints }: HintsListProps) => {
   const revealedHints = hints.filter(hint => hint.revealed);
   
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md border-2 border-primary/50">
+    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
       <h3 className="text-lg font-semibold mb-3 flex items-center">
-        <div className="sparkle">
-          <LightbulbIcon className="h-5 w-5 text-yellow-400 mr-2" />
-        </div>
+        <LightbulbIcon className="h-5 w-5 text-yellow-400 mr-2" />
         <span>Hint ({revealedHints.length}/{hints.length})</span>
       </h3>
       
@@ -28,8 +26,8 @@ const HintsList = ({ hints }: HintsListProps) => {
               className={cn(
                 "p-3 rounded-md animate-fade-in border-l-4",
                 index === revealedHints.length - 1 
-                  ? "bg-easter-yellow border-yellow-400" 
-                  : ["bg-easter-green border-green-400", "bg-easter-blue border-blue-400", "bg-easter-pink border-pink-400"][index % 3]
+                  ? "bg-yellow-50 border-yellow-400" 
+                  : ["bg-green-50 border-green-400", "bg-blue-50 border-blue-400", "bg-purple-50 border-purple-400"][index % 3]
               )}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
@@ -38,13 +36,8 @@ const HintsList = ({ hints }: HintsListProps) => {
           ))}
         </ul>
       ) : (
-        <div className="text-center p-8">
-          <img 
-            src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/thinking-face_1f914.png" 
-            alt="Thinking" 
-            className="w-16 h-16 mx-auto mb-3 animate-float"
-          />
-          <p className="text-gray-500 italic">Gå nærmere for å få hint!</p>
+        <div className="text-center p-6">
+          <p className="text-gray-500">Gå nærmere for å få hint!</p>
         </div>
       )}
     </div>
