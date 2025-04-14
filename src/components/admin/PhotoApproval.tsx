@@ -3,15 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Check, X, Image, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useHunt } from '@/contexts/hunt';
+import {
+  getPendingPhotoSubmissions,
+  updateSubmissionStatus,
+  type PhotoSubmission
+} from '@/integrations/supabase/photoService';
 
-interface PhotoSubmission {
-  id: string;
-  huntId: string;
-  waypointId: string;
-  photoData: string;
-  timestamp: string;
-  status: 'pending' | 'approved' | 'rejected';
-}
+// Using the PhotoSubmission interface from our photoService
 
 const PhotoApproval = () => {
   const [submissions, setSubmissions] = useState<PhotoSubmission[]>([]);
@@ -19,12 +17,11 @@ const PhotoApproval = () => {
   const { toast } = useToast();
   const { hunts, setWaypointFound } = useHunt();
   
-  const loadSubmissions = () => {
+  const loadSubmissions = async () => {
     setLoading(true);
     try {
-      // In a real app, this would be an API call
-      const storedSubmissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
-      setSubmissions(storedSubmissions.filter((sub: PhotoSubmission) => sub.status === 'pending'));
+      const pendingSubmissions = await getPendingPhotoSubmissions();
+      setSubmissions(pendingSubmissions);
     } catch (error) {
       console.error('Error loading submissions:', error);
       toast({
@@ -53,12 +50,8 @@ const PhotoApproval = () => {
   
   const handleApprove = async (submission: PhotoSubmission) => {
     try {
-      // Update submission status in localStorage
-      const allSubmissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
-      const updatedSubmissions = allSubmissions.map((sub: PhotoSubmission) => 
-        sub.id === submission.id ? { ...sub, status: 'approved' } : sub
-      );
-      localStorage.setItem('eggSubmissions', JSON.stringify(updatedSubmissions));
+      // Update submission status in Supabase
+      await updateSubmissionStatus(submission.id, 'approved');
       
       // Mark waypoint as found
       await setWaypointFound(submission.huntId, submission.waypointId, true);
@@ -81,14 +74,10 @@ const PhotoApproval = () => {
     }
   };
   
-  const handleReject = (submission: PhotoSubmission) => {
+  const handleReject = async (submission: PhotoSubmission) => {
     try {
-      // Update submission status in localStorage
-      const allSubmissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
-      const updatedSubmissions = allSubmissions.map((sub: PhotoSubmission) => 
-        sub.id === submission.id ? { ...sub, status: 'rejected' } : sub
-      );
-      localStorage.setItem('eggSubmissions', JSON.stringify(updatedSubmissions));
+      // Update submission status in Supabase
+      await updateSubmissionStatus(submission.id, 'rejected');
       
       toast({
         title: "Avvist",
@@ -148,10 +137,10 @@ const PhotoApproval = () => {
                 </div>
                 
                 <div className="rounded-md overflow-hidden mb-3">
-                  <img 
-                    src={submission.photoData} 
-                    alt="Egg submission" 
-                    className="w-full object-cover" 
+                  <img
+                    src={submission.photoUrl}
+                    alt="Egg submission"
+                    className="w-full object-cover"
                   />
                 </div>
                 

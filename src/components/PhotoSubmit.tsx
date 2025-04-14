@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Upload, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { uploadPhoto, createPhotoSubmission } from '@/integrations/supabase/photoService';
 
 interface PhotoSubmitProps {
   waypointId: string;
@@ -49,22 +50,11 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
     setIsSubmitting(true);
     
     try {
-      // Using localStorage for demonstration purposes
-      // In a real app, this would be an API call to your backend
-      const submissionId = `${huntId}_${waypointId}_${Date.now()}`;
-      const submission = {
-        id: submissionId,
-        huntId,
-        waypointId,
-        photoData: photo,
-        timestamp: new Date().toISOString(),
-        status: 'pending' // pending, approved, rejected
-      };
+      // Step 1: Upload photo to Supabase Storage
+      const photoUrl = await uploadPhoto(photo, huntId, waypointId);
       
-      // Store in localStorage for now (temporary solution)
-      const existingSubmissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
-      existingSubmissions.push(submission);
-      localStorage.setItem('eggSubmissions', JSON.stringify(existingSubmissions));
+      // Step 2: Create submission record in the database
+      await createPhotoSubmission(huntId, waypointId, photoUrl);
       
       toast({
         title: "Bilde sendt",

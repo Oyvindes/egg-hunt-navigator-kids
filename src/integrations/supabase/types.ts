@@ -112,6 +112,51 @@ export type Database = {
           },
         ]
       }
+      photo_submissions: {
+        Row: {
+          id: string
+          hunt_id: string
+          waypoint_id: string
+          photo_url: string
+          timestamp: string
+          status: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          hunt_id: string
+          waypoint_id: string
+          photo_url: string
+          timestamp: string
+          status: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          hunt_id?: string
+          waypoint_id?: string
+          photo_url?: string
+          timestamp?: string
+          status?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_submissions_hunt_id_fkey"
+            columns: ["hunt_id"]
+            isOneToOne: false
+            referencedRelation: "hunts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_submissions_waypoint_id_fkey"
+            columns: ["waypoint_id"]
+            isOneToOne: false
+            referencedRelation: "waypoints"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
