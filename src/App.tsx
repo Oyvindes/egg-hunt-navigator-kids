@@ -20,7 +20,7 @@ const App = () => (
           <div className="dark min-h-screen bg-background">
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter basename="/egg-hunt-navigator-kids">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/admin" element={<Admin />} />
