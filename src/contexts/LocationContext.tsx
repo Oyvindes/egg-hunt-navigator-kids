@@ -10,6 +10,9 @@ interface LocationContextProps {
   error: string | null;
   isTracking: boolean;
   isCompassActive: boolean;
+  isDevelopmentMode: boolean;
+  toggleDevelopmentMode: () => void;
+  setMockLocation: (lat: number, lng: number) => void;
   startTracking: () => void;
   stopTracking: () => void;
 }

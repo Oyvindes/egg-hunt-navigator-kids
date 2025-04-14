@@ -4,6 +4,7 @@ import CompassArrow from './CompassArrow';
 import TemperatureIndicator from './TemperatureIndicator';
 import DistanceMeter from './DistanceMeter';
 import HintsList from './HintsList';
+import PhotoSubmit from './PhotoSubmit';
 import { useLocation } from '@/contexts/LocationContext';
 import { useHunt } from '@/contexts/hunt';
 import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo-utils';
@@ -26,6 +27,7 @@ const HuntNavigation = () => {
   } = useHunt();
   const [distance, setDistance] = useState<number | null>(null);
   const [processingRevealedHints, setProcessingRevealedHints] = useState<Set<string>>(new Set());
+  const [showPhotoSubmit, setShowPhotoSubmit] = useState(false);
 
   // Start tracking location when component mounts
   useEffect(() => {
@@ -142,18 +144,51 @@ const HuntNavigation = () => {
       
       <HintsList hints={currentWaypoint.hints} />
       
-      <div className="mt-8 text-center">
-        <Button 
-          variant="outline"
-          onClick={() => {
-            if (activeHunt && currentWaypoint) {
-              setWaypointFound(activeHunt.id, currentWaypoint.id, true);
-            }
+      {showPhotoSubmit ? (
+        <PhotoSubmit
+          huntId={activeHunt.id}
+          waypointId={currentWaypoint.id}
+          onSubmitSuccess={() => {
+            setShowPhotoSubmit(false);
           }}
-        >
-          Jeg har funnet påskeegget!
-        </Button>
-      </div>
+          onCancel={() => setShowPhotoSubmit(false)}
+        />
+      ) : (
+        <div className="mt-8 text-center">
+          {/* Check if a submission is pending */}
+          {(() => {
+            try {
+              const submissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
+              const isPending = submissions.some(
+                (sub: any) => sub.huntId === activeHunt.id &&
+                              sub.waypointId === currentWaypoint.id &&
+                              sub.status === 'pending'
+              );
+              
+              if (isPending) {
+                return (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                    <p className="text-yellow-700 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
+                    <p className="text-yellow-600 text-sm">Vent på at bildet blir godkjent før du fortsetter</p>
+                  </div>
+                );
+              }
+            } catch (error) {
+              console.error('Error checking submissions:', error);
+            }
+            
+            return (
+              <Button
+                variant="outline"
+                onClick={() => setShowPhotoSubmit(true)}
+                className="bg-primary hover:bg-primary/90 text-white border-none"
+              >
+                Jeg har funnet påskeegget! Ta bilde
+              </Button>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 };

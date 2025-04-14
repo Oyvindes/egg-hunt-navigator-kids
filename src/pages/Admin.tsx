@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Map, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, Map, Plus, Sparkles, Image } from 'lucide-react';
 import HuntForm from '@/components/admin/HuntForm';
 import HuntsList from '@/components/admin/HuntsList';
 import WaypointForm from '@/components/admin/WaypointForm';
 import WaypointsList from '@/components/admin/WaypointsList';
 import PinCodeEntry from '@/components/admin/PinCodeEntry';
+import PhotoApproval from '@/components/admin/PhotoApproval';
 import { useHunt } from '@/contexts/hunt';
 
 const Admin = () => {
@@ -106,9 +107,9 @@ const Admin = () => {
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <Tabs defaultValue="hunts" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 rounded-none px-2 py-2">
-              <TabsTrigger 
-                value="hunts" 
+            <TabsList className="w-full grid grid-cols-3 rounded-none px-2 py-2">
+              <TabsTrigger
+                value="hunts"
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
               >
                 Påskejakter
@@ -118,6 +119,12 @@ const Admin = () => {
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
               >
                 Poster
+              </TabsTrigger>
+              <TabsTrigger
+                value="photos"
+                className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white flex items-center justify-center"
+              >
+                <Image className="h-4 w-4 mr-1" /> Bilder
               </TabsTrigger>
             </TabsList>
             
@@ -170,6 +177,10 @@ const Admin = () => {
                   </Button>
                 </div>
               )}
+            </TabsContent>
+            
+            <TabsContent value="photos" className="p-6 space-y-4">
+              <PhotoApproval />
             </TabsContent>
           </Tabs>
         </div>
