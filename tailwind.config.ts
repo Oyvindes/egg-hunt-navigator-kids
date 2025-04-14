@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -12,77 +11,51 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
+      padding: "2rem",
       screens: {
-        '2xl': '1400px'
+        "2xl": "1400px"
       }
     },
     extend: {
       colors: {
-        border: 'hsl(240 3.7% 15.9%)', // Dark border
-        input: 'hsl(240 3.7% 15.9%)', // Dark input
-        ring: 'hsl(240 4.9% 83.9%)', // Slightly lighter ring
-        background: 'hsl(240 10% 3.9%)', // Very dark background
-        foreground: 'hsl(0 0% 98%)', // Almost white text
+        border: 'hsl(0 0% 20%)', // Dark border
+        input: 'hsl(0 0% 20%)', // Dark input
+        ring: 'hsl(0 0% 70%)', // Lighter ring
+        background: 'hsl(0 0% 95%)', // Light background
+        foreground: 'hsl(0 0% 10%)', // Almost black text
         primary: {
-          DEFAULT: 'hsl(263 70% 50%)', // Brighter purple to match the image
-          foreground: 'hsl(222.2 47.4% 11.2%)'
+          DEFAULT: 'hsl(263 70% 50%)', // Bright purple
+          foreground: 'hsl(0 0% 10%)' // Black text
         },
         secondary: {
-          DEFAULT: 'hsl(198 93% 55%)', // Brighter blue to match the image
-          foreground: 'hsl(210 40% 98%)'
+          DEFAULT: 'hsl(198 93% 55%)', // Bright blue
+          foreground: 'hsl(0 0% 10%)' // Black text
         },
         destructive: {
-          DEFAULT: 'hsl(0 62.8% 30.6%)', // Darker destructive color
-          foreground: 'hsl(0 0% 98%)'
+          DEFAULT: 'hsl(0 62.8% 50%)', // Destructive color
+          foreground: 'hsl(0 0% 10%)' // Black text
         },
         muted: {
-          DEFAULT: 'hsl(240 3.7% 15.9%)', // Dark muted background
-          foreground: 'hsl(240 5% 64.9%)' // Lighter muted text
+          DEFAULT: 'hsl(0 0% 90%)', // Light muted background
+          foreground: 'hsl(0 0% 30%)' // Dark muted text
         },
         accent: {
-          DEFAULT: 'hsl(263 70% 50%)', // Purple accent to match the image
-          foreground: 'hsl(0 0% 98%)'
+          DEFAULT: 'hsl(263 70% 50%)', // Purple accent
+          foreground: 'hsl(0 0% 10%)' // Black text
         },
         popover: {
-          DEFAULT: 'hsl(240 10% 3.9%)', // Very dark popover
-          foreground: 'hsl(0 0% 98%)'
+          DEFAULT: 'hsl(0 0% 100%)', // White popover
+          foreground: 'hsl(0 0% 10%)' // Black text
         },
         card: {
-          DEFAULT: 'hsl(240 6% 10%)', // Dark card background to match the image
-          foreground: 'hsl(0 0% 98%)'
-        },
-        sidebar: {
-          DEFAULT: 'hsl(240 5.9% 10%)', // Extremely dark sidebar
-          foreground: 'hsl(240 4.8% 95.9%)', // Almost white sidebar text
-          primary: 'hsl(263 76.3% 55%)', // Bright purple sidebar primary
-          'primary-foreground': 'hsl(0 0% 100%)',
-          accent: 'hsl(240 3.7% 15.9%)', // Dark sidebar accent
-          'accent-foreground': 'hsl(240 4.8% 95.9%)',
-          border: 'hsl(240 3.7% 15.9%)', // Dark sidebar border
-          ring: 'hsl(217.2 91.2% 59.8%)' // Bright sidebar ring
-        },
-        'text-primary': {
-          DEFAULT: 'hsl(var(--text-primary))', // White text for dark backgrounds
-          foreground: 'hsl(var(--text-primary))'
-        },
-        'text-secondary': {
-          DEFAULT: 'hsl(var(--text-secondary))', // Bright interactive text
-          foreground: 'hsl(var(--text-secondary))'
-        },
-        'text-accent': {
-          DEFAULT: 'hsl(var(--text-accent))', // Accent text color
-          foreground: 'hsl(var(--text-accent))'
-        },
-        'text-highlight': {
-          DEFAULT: 'hsl(var(--text-highlight))', // Highlight text color
-          foreground: 'hsl(var(--text-highlight))'
+          DEFAULT: 'hsl(0 0% 100%)', // White card background
+          foreground: 'hsl(0 0% 10%)' // Black text
         }
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)"
       },
       keyframes: {
         'accordion-down': {
