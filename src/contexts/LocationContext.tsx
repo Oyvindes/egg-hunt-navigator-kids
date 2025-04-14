@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +24,9 @@ const LocationContext = createContext<LocationContextProps>({
   error: null,
   isTracking: false,
   isCompassActive: false,
+  isDevelopmentMode: false,
+  toggleDevelopmentMode: () => {},
+  setMockLocation: () => {},
   startTracking: () => {},
   stopTracking: () => {}
 });
@@ -52,7 +54,25 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
   const [isTracking, setIsTracking] = useState(false);
   const [watchId, setWatchId] = useState<number | null>(null);
   const [isCompassActive, setIsCompassActive] = useState(false);
+  const [isDevelopmentMode, setIsDevelopmentMode] = useState(false);
   const { toast } = useToast();
+
+  const toggleDevelopmentMode = () => {
+    setIsDevelopmentMode(!isDevelopmentMode);
+  };
+  
+  const setMockLocation = (lat: number, lng: number) => {
+    if (isDevelopmentMode) {
+      setLocation({
+        latitude: lat,
+        longitude: lng,
+        heading: 0,
+        accuracy: 10,
+      });
+    } else {
+      console.warn("Cannot set mock location when not in development mode");
+    }
+  };
 
   const handlePositionSuccess = (position: GeolocationPosition) => {
     setLocation({
@@ -89,9 +109,7 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
     });
   };
 
-  // Handle device orientation for compass
   const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
-    // Get compass heading from device (alpha is the compass direction)
     if (event.alpha !== null) {
       setDeviceOrientation(event.alpha);
       setIsCompassActive(true);
@@ -128,16 +146,11 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
 
     setIsTracking(true);
     
-    // Start device orientation/compass if supported
     try {
-      // Check for iOS 13+ permission API
       const iosPermissionAPI = window.DeviceOrientationEvent &&
-        // @ts-ignore - TypeScript doesn't know about this iOS-specific API
         typeof DeviceOrientationEvent.requestPermission === 'function';
         
       if (iosPermissionAPI) {
-        // iOS 13+ requires permission
-        // @ts-ignore - TypeScript doesn't know about this iOS-specific API
         DeviceOrientationEvent.requestPermission()
           .then((permissionState: string) => {
             if (permissionState === 'granted') {
@@ -150,7 +163,6 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
             console.error('Error requesting device orientation permission:', err);
           });
       } else if (window.DeviceOrientationEvent) {
-        // Other browsers that support DeviceOrientationEvent
         startDeviceOrientation();
       }
     } catch (err) {
@@ -163,7 +175,7 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
       {
         enableHighAccuracy: true,
         maximumAge: 0,
-        timeout: 2000  // Set timeout to 2000ms (2 seconds)
+        timeout: 2000
       }
     );
     
@@ -177,11 +189,9 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
       setIsTracking(false);
     }
     
-    // Also stop compass/device orientation
     stopDeviceOrientation();
   };
 
-  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (watchId !== null) {
@@ -200,6 +210,9 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
         error,
         isTracking,
         isCompassActive,
+        isDevelopmentMode,
+        toggleDevelopmentMode,
+        setMockLocation,
         startTracking,
         stopTracking
       }}
