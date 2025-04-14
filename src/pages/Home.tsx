@@ -86,19 +86,19 @@ const Home = () => {
           </span>
         </h1>
         {activeHunt && (
-          <p className="text-sm bg-primary/20 text-primary inline-block px-2 py-1 rounded-full mt-2">
+          <p className="text-sm bg-yellow-500/20 text-yellow-400 inline-block px-2 py-1 rounded-full mt-2 backdrop-blur-sm border border-yellow-500/20">
             {activeHunt.name}
           </p>
         )}
       </div>
       
       <div className="relative z-10">
-        <div className="bg-card rounded-lg p-6 shadow-lg border border-gray-800">
+        <div className="bg-black/50 backdrop-blur-sm rounded-xl p-6 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out">
           {showPermissionDialog ? (
             <div className="flex flex-col items-center justify-center text-center p-4 h-64">
-              <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
-              <h2 className="text-xl font-bold mb-2">GPS-tillatelse kreves</h2>
-              <p className="mb-4">Påskejakten trenger å få tilgang til din posisjon for å fungere. Vennligst gi tilgang når nettleseren spør.</p>
+              <AlertCircle className="h-12 w-12 text-yellow-400 mb-4" />
+              <h2 className="text-xl font-bold mb-2 text-white">GPS-tillatelse kreves</h2>
+              <p className="mb-4 text-gray-200">Påskejakten trenger å få tilgang til din posisjon for å fungere. Vennligst gi tilgang når nettleseren spør.</p>
               <Button
                 className="mt-2 bg-primary hover:bg-primary/90 text-white flex items-center"
                 onClick={() => {
@@ -111,8 +111,9 @@ const Home = () => {
               </Button>
             </div>
           ) : isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <div className="flex flex-col justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+              <p className="mt-4 text-gray-200">Laster inn...</p>
             </div>
           ) : (
             <HuntNavigation />

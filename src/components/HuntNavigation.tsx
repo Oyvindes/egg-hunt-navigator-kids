@@ -204,25 +204,25 @@ const HuntNavigation = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg p-4 shadow-md">
-        <h2 className="text-xl font-semibold mb-1">{currentWaypoint.name}</h2>
-        <p className="text-sm text-gray-500">Post {currentWaypoint.order} av {activeHunt.waypoints.length}</p>
+      <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
+        <h2 className="text-xl font-semibold mb-1 text-white">{currentWaypoint.name}</h2>
+        <p className="text-sm text-gray-300">Post {currentWaypoint.order} av {activeHunt.waypoints.length}</p>
         
         <div className="mt-4">
-          <Progress value={progressPercentage} className="h-3" />
-          <p className="text-sm text-gray-500 mt-1">{Math.round(progressPercentage)}% fullført</p>
+          <Progress value={progressPercentage} className="h-3 bg-gray-800" />
+          <p className="text-sm text-gray-300 mt-1">{Math.round(progressPercentage)}% fullført</p>
         </div>
         
         {currentWaypoint.startingHint && (
-          <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r text-sm flex items-center">
-            <Info className="h-5 w-5 mr-2 text-blue-500" />
-            <span>{currentWaypoint.startingHint}</span>
+          <div className="mt-4 bg-blue-500/20 backdrop-blur-sm border-l-4 border-blue-400 p-3 rounded-r text-sm flex items-center">
+            <Info className="h-5 w-5 mr-2 text-blue-300" />
+            <span className="text-gray-200">{currentWaypoint.startingHint}</span>
           </div>
         )}
       </div>
       {/* Navigation section */}
-      <div className="bg-white rounded-lg p-4 shadow-md">
-        <h3 className="text-sm font-medium mb-3">Navigasjon</h3>
+      <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
+        <h3 className="text-sm font-medium mb-3 text-gray-200">Navigasjon</h3>
         
         <CompassArrow
           targetLatitude={currentWaypoint.latitude}
@@ -257,9 +257,9 @@ const HuntNavigation = () => {
               <span className="text-gray-500">Sjekker bildeinnleveringer...</span>
             </div>
           ) : pendingSubmission ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-              <p className="text-yellow-700 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
-              <p className="text-yellow-600 text-sm mb-3">Vent på at bildet blir godkjent før du fortsetter</p>
+            <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-xl p-4 text-center shadow-lg">
+              <p className="text-yellow-300 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
+              <p className="text-yellow-200 text-sm mb-3">Vent på at bildet blir godkjent før du fortsetter</p>
               <div className="flex justify-center">
                 <Button
                   variant="outline"
@@ -295,6 +295,7 @@ const HuntNavigation = () => {
                       setCheckingSubmission(false);
                     }
                   }}
+                  className="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-100 border-yellow-500/30"
                 >
                   Sjekk status
                 </Button>
@@ -304,7 +305,7 @@ const HuntNavigation = () => {
             <Button
               variant="outline"
               onClick={() => setShowPhotoSubmit(true)}
-              className="bg-primary hover:bg-primary/90 text-white border-none"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none shadow-lg transform hover:translate-y-[-2px] transition-all duration-300 rounded-lg"
             >
               Jeg har funnet påskeegget! Ta bilde
             </Button>

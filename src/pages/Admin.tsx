@@ -119,16 +119,16 @@ const Admin = () => {
       </div>
       
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-xl shadow-2xl p-8 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out">
           <div className="flex flex-col items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             <p className="mt-4 text-gray-600">Laster data...</p>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-2xl overflow-hidden transform hover:scale-[1.01] transition-transform duration-300 ease-in-out">
           <Tabs defaultValue="hunts" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 rounded-none px-2 py-2">
+            <TabsList className="w-full grid grid-cols-3 rounded-t-xl px-2 py-2 bg-gray-100">
               <TabsTrigger
                 value="hunts"
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
