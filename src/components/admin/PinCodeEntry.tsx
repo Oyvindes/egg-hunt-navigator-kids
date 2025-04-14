@@ -47,14 +47,19 @@ const PinCodeEntry = ({ onSuccess }: PinCodeEntryProps) => {
           onChange={setPinCode} 
           maxLength={4} 
           pattern="^[0-9]+$"
-        >
-          <InputOTPGroup>
-            <InputOTPSlot index={0} className={`w-12 h-14 text-lg ${error ? 'border-red-500 focus:border-red-500' : ''}`} />
-            <InputOTPSlot index={1} className={`w-12 h-14 text-lg ${error ? 'border-red-500 focus:border-red-500' : ''}`} />
-            <InputOTPSlot index={2} className={`w-12 h-14 text-lg ${error ? 'border-red-500 focus:border-red-500' : ''}`} />
-            <InputOTPSlot index={3} className={`w-12 h-14 text-lg ${error ? 'border-red-500 focus:border-red-500' : ''}`} />
-          </InputOTPGroup>
-        </InputOTP>
+          render={({ slots }) => (
+            <InputOTPGroup className="gap-3 justify-center">
+              {slots.map((slot, index) => (
+                <InputOTPSlot 
+                  key={index} 
+                  {...slot} 
+                  index={index}
+                  className={`w-12 h-14 text-lg ${error ? 'border-red-500 focus:border-red-500' : ''}`}
+                />
+              ))}
+            </InputOTPGroup>
+          )}
+        />
         
         {error && (
           <div className="flex items-center text-red-500 text-sm mt-2 justify-center">
