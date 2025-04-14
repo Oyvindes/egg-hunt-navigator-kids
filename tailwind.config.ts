@@ -63,13 +63,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Easter themed colors
+				// Easter themed colors - expanded for youth appeal
 				easter: {
-					yellow: "#FEF7CD",
-					pink: "#FFDEE2",
-					blue: "#D3E4FD",
-					green: "#F2FCE2",
-					purple: "#E5DEFF",
+					yellow: "#FEF7CD", // Soft yellow
+					pink: "#FFDEE2",   // Soft pink
+					blue: "#D3E4FD",   // Soft blue
+					green: "#F2FCE2",  // Soft green
+					purple: "#E5DEFF", // Soft purple
+					orange: "#FFE0CC", // Soft orange
+					mint: "#C8F7DC",   // Mint green
+					coral: "#FFD8CC",  // Coral
+					lavender: "#E0D6FF", // Lavender
+					aqua: "#CCFAFF",   // Aqua
+					lime: "#E8FFB8",   // Lime
 				}
 			},
 			borderRadius: {
@@ -113,6 +119,14 @@ export default {
 				'bounce-subtle': {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-5px)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translate(0, 0)' },
+					'50%': { transform: 'translate(0, -10px)' }
+				},
+				'spin-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
@@ -122,7 +136,9 @@ export default {
 				'pulse-hot': 'pulse-hot 1s infinite',
 				'pulse-cold': 'pulse-cold 2s infinite',
 				'pulse-ice': 'pulse-ice 1s infinite',
-				'bounce-subtle': 'bounce-subtle 2s infinite'
+				'bounce-subtle': 'bounce-subtle 2s infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'spin-slow': 'spin-slow 8s linear infinite'
 			}
 		}
 	},

@@ -15,23 +15,31 @@ const Home = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-primary">Påskejakt</h1>
-          {activeHunt && <p className="text-sm">{activeHunt.name}</p>}
+          {activeHunt && <p className="text-sm bg-easter-yellow inline-block px-2 py-1 rounded-full">{activeHunt.name}</p>}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
-          <Settings className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => navigate('/admin')}
+          className="bg-easter-purple hover:bg-easter-pink rounded-full"
+        >
+          <Settings className="h-5 w-5 text-white" />
         </Button>
       </div>
       
       <div className="relative">
-        {/* Easter egg decorations */}
-        <div className="absolute -top-12 -left-8 w-20 h-20 opacity-70 egg-shadow">
+        {/* Easter egg decorations with animation */}
+        <div className="absolute -top-12 -left-8 w-20 h-20 opacity-80 egg-shadow animate-bounce-subtle">
           <img src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/egg_1f95a.png" alt="Egg" className="w-full h-full object-contain" />
         </div>
-        <div className="absolute -top-6 -right-6 w-16 h-16 rotate-12 opacity-70 egg-shadow">
+        <div className="absolute -top-6 -right-6 w-16 h-16 rotate-12 opacity-80 egg-shadow animate-bounce-subtle" style={{animationDelay: "0.5s"}}>
           <img src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/rabbit-face_1f430.png" alt="Rabbit" className="w-full h-full object-contain" />
         </div>
+        <div className="absolute bottom-0 right-0 w-16 h-16 opacity-80 egg-shadow animate-bounce-subtle" style={{animationDelay: "1s"}}>
+          <img src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/hatching-chick_1f423.png" alt="Chick" className="w-full h-full object-contain" />
+        </div>
         
-        <div className="bg-white rounded-lg p-6 shadow-lg border-t-4 border-primary">
+        <div className="bg-gradient-to-br from-white to-easter-blue rounded-lg p-6 shadow-lg border-4 border-primary">
           <HuntNavigation />
         </div>
       </div>

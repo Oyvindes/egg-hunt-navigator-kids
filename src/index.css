@@ -82,7 +82,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: "Baloo 2", "Comic Sans MS", "Comic Sans", cursive;
   }
   
   .egg-shadow {
@@ -94,3 +94,71 @@
     transition: transform 0.5s ease;
   }
 }
+
+@layer components {
+  .btn-bounce {
+    @apply transition-transform active:scale-95;
+  }
+  
+  .card-glow {
+    @apply relative overflow-hidden;
+    box-shadow: 0 0 15px 5px rgba(155, 135, 245, 0.3);
+  }
+  
+  .card-glow::before {
+    content: '';
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-to-br from-transparent via-white/10 to-transparent rounded-full;
+    animation: rotate 6s linear infinite;
+    z-index: 0;
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .sparkle {
+    position: relative;
+    display: inline-block;
+  }
+
+  .sparkle::before,
+  .sparkle::after {
+    content: "";
+    position: absolute;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FEC84B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L12 22'/%3E%3Cpath d='M2 12L22 12'/%3E%3C/svg%3E");
+    width: 16px;
+    height: 16px;
+    animation: sparkle-animation 1.5s linear infinite;
+    pointer-events: none;
+  }
+
+  .sparkle::before {
+    top: -8px;
+    left: -8px;
+  }
+
+  .sparkle::after {
+    bottom: -8px;
+    right: -8px;
+    animation-delay: 0.75s;
+  }
+
+  @keyframes sparkle-animation {
+    0%, 100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* Import Baloo 2 font - a rounded, playful font great for kids/youth audience */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap');

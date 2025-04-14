@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Compass } from 'lucide-react';
 import { useLocation } from '@/contexts/LocationContext';
 import { calculateBearing } from '@/lib/geo-utils';
 
@@ -29,9 +29,10 @@ const CompassArrow = ({ targetLatitude, targetLongitude }: CompassArrowProps) =>
 
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="relative w-24 h-24 bg-easter-blue rounded-full flex items-center justify-center shadow-lg">
+      <div className="relative w-28 h-28 bg-gradient-to-br from-easter-blue to-easter-aqua rounded-full flex items-center justify-center shadow-lg border-4 border-primary">
+        <Compass className="absolute opacity-20 w-20 h-20 text-gray-500 animate-spin-slow" />
         <ArrowUp 
-          className="compass-arrow text-primary h-16 w-16"
+          className="compass-arrow text-primary h-16 w-16 z-10 drop-shadow-md"
           style={{ transform: `rotate(${arrowRotation}deg)` }}
         />
       </div>
