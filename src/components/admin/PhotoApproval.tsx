@@ -9,8 +9,6 @@ import {
   type PhotoSubmission
 } from '@/integrations/supabase/photoService';
 
-// Using the PhotoSubmission interface from our photoService
-
 const PhotoApproval = () => {
   const [submissions, setSubmissions] = useState<PhotoSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +34,10 @@ const PhotoApproval = () => {
   
   useEffect(() => {
     loadSubmissions();
+    
+    // Set up polling to refresh submissions every 10 seconds
+    const interval = setInterval(loadSubmissions, 10000);
+    return () => clearInterval(interval);
   }, []);
   
   const getWaypointInfo = (huntId: string, waypointId: string) => {

@@ -158,6 +158,34 @@ export const updateSubmissionStatus = async (
 };
 
 /**
+ * Check if there's a pending submission for a specific waypoint
+ * @param huntId - ID of the hunt
+ * @param waypointId - ID of the waypoint
+ * @returns Whether there's a pending submission
+ */
+export const hasPendingSubmission = async (
+  huntId: string,
+  waypointId: string
+): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('photo_submissions')
+      .select('*')
+      .eq('hunt_id', huntId)
+      .eq('waypoint_id', waypointId)
+      .eq('status', 'pending')
+      .limit(1);
+
+    if (error) throw error;
+
+    return data.length > 0;
+  } catch (error) {
+    console.error('Error checking pending submissions:', error);
+    return false;
+  }
+};
+
+/**
  * Get all photo submissions for a waypoint
  * @param huntId - ID of the hunt
  * @param waypointId - ID of the waypoint

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import CompassArrow from './CompassArrow';
 import TemperatureIndicator from './TemperatureIndicator';
@@ -11,7 +10,8 @@ import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
-import { Info } from 'lucide-react';
+import { Info, Map, Navigation } from 'lucide-react';
+import { hasPendingSubmission } from '@/integrations/supabase/photoService';
 
 const HuntNavigation = () => {
   const { latitude, longitude, isTracking, startTracking } = useLocation();
@@ -29,6 +29,10 @@ const HuntNavigation = () => {
   const [distance, setDistance] = useState<number | null>(null);
   const [processingRevealedHints, setProcessingRevealedHints] = useState<Set<string>>(new Set());
   const [showPhotoSubmit, setShowPhotoSubmit] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState(false);
+  const [shouldCheckCompletion, setShouldCheckCompletion] = useState(false);
+  const [checkingSubmission, setCheckingSubmission] = useState(false);
+  const [localHuntCompleted, setLocalHuntCompleted] = useState(false);
 
   // Start tracking location when component mounts
   useEffect(() => {
@@ -36,6 +40,35 @@ const HuntNavigation = () => {
       startTracking();
     }
   }, [isTracking, startTracking]);
+  
+  // Check for pending submission
+  useEffect(() => {
+    const checkSubmissionStatus = async () => {
+      if (!activeHunt || !currentWaypoint) return;
+      
+      setCheckingSubmission(true);
+      try {
+        const isPending = await hasPendingSubmission(activeHunt.id, currentWaypoint.id);
+        
+        // If we had a pending submission that's now gone, trigger completion check
+        if (pendingSubmission && !isPending) {
+          setShouldCheckCompletion(true);
+        }
+        
+        setPendingSubmission(isPending);
+      } catch (error) {
+        console.error('Error checking submission status:', error);
+      } finally {
+        setCheckingSubmission(false);
+      }
+    };
+    
+    checkSubmissionStatus();
+    
+    // Set up polling to check status every 5 seconds
+    const interval = setInterval(checkSubmissionStatus, 5000);
+    return () => clearInterval(interval);
+  }, [activeHunt, currentWaypoint, pendingSubmission]);
 
   // Calculate distance and update hints when location changes
   useEffect(() => {
@@ -68,6 +101,42 @@ const HuntNavigation = () => {
       });
     }
   }, [latitude, longitude, currentWaypoint, activeHunt, moveToNextWaypoint, setHintRevealed, processingRevealedHints]);
+  
+  // Open the current waypoint in Google Maps
+  const openInMaps = () => {
+    if (!currentWaypoint) return;
+    
+    const { latitude, longitude } = currentWaypoint;
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    window.open(url, '_blank');
+  };
+  
+  // Check for hunt completion when a photo is approved
+  useEffect(() => {
+    if (!shouldCheckCompletion || !activeHunt) return;
+    
+    // Reset the flag
+    setShouldCheckCompletion(false);
+    
+    // Check if this was the last waypoint in the hunt
+    const waypointsCount = activeHunt.waypoints.length;
+    const foundWaypoints = activeHunt.waypoints.filter(wp => wp.found).length;
+    
+    // Check if our approved submission is for the last pending waypoint
+    const isLastWaypointPending = foundWaypoints === waypointsCount - 1 &&
+                                 currentWaypoint &&
+                                 !currentWaypoint.found;
+    
+    // If all waypoints are now found, or we just got approval for the last one, show completion
+    if (foundWaypoints === waypointsCount || isLastWaypointPending) {
+      // Mark our local hunt as completed to show celebration screen
+      setLocalHuntCompleted(true);
+      console.log("All waypoints found! Hunt completed!");
+    } else {
+      // Move to the next waypoint automatically
+      moveToNextWaypoint();
+    }
+  }, [shouldCheckCompletion, activeHunt, moveToNextWaypoint, currentWaypoint]);
 
   if (isLoading) {
     return (
@@ -87,17 +156,47 @@ const HuntNavigation = () => {
     );
   }
 
-  if (isHuntCompleted) {
+  if (isHuntCompleted || localHuntCompleted) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <div className="w-24 h-24 mb-4">
-          <img src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/party-popper_1f389.png" alt="Celebration" className="w-full h-full object-contain animate-bounce-subtle" />
+      <div className="flex flex-col items-center justify-center h-full text-center py-8">
+        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg border-2 border-yellow-400">
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              <img
+                src="https://emojipedia-us.s3.amazonaws.com/source/skype/289/party-popper_1f389.png"
+                alt="Celebration"
+                className="w-28 h-28 object-contain animate-bounce-subtle"
+              />
+              <img
+                src="https://emojipedia-us.s3.amazonaws.com/source/microsoft-teams/337/hatching-chick_1f423.png"
+                alt="Easter chick"
+                className="w-16 h-16 object-contain absolute -bottom-2 -right-2 animate-pulse"
+              />
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold mb-2 text-yellow-600">Hurra! Gratulerer!</h2>
+          <p className="text-lg mb-4">Du har fullført påskejakten!</p>
+          
+          <div className="py-3 px-4 bg-yellow-50 rounded-lg mb-4">
+            <p className="text-yellow-700">
+              Fantastisk jobbet! Du har funnet alle påskeeggene og fullført påskejakten!
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setLocalHuntCompleted(false);
+                resetHunt();
+              }}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+            >
+              Start på nytt
+            </Button>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold mb-2">Gratulerer!</h2>
-        <p className="text-lg mb-4">Du har fullført påskejakten!</p>
-        <Button variant="outline" onClick={() => resetHunt()}>
-          Start på nytt
-        </Button>
       </div>
     );
   }
@@ -129,12 +228,26 @@ const HuntNavigation = () => {
           </div>
         )}
       </div>
-      
-      {/* Always show compass arrow regardless of distance */}
-      <CompassArrow
-        targetLatitude={currentWaypoint.latitude}
-        targetLongitude={currentWaypoint.longitude}
-      />
+      {/* Navigation section with Google Maps link */}
+      <div className="bg-white rounded-lg p-4 shadow-md">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-sm font-medium">Navigasjon</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={openInMaps}
+            className="flex items-center gap-1"
+          >
+            <Map className="h-4 w-4" />
+            <span>Åpne i Google Maps</span>
+          </Button>
+        </div>
+        
+        <CompassArrow
+          targetLatitude={currentWaypoint.latitude}
+          targetLongitude={currentWaypoint.longitude}
+        />
+      </div>
       
       {distance !== null && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,43 +264,70 @@ const HuntNavigation = () => {
           waypointId={currentWaypoint.id}
           onSubmitSuccess={() => {
             setShowPhotoSubmit(false);
+            setPendingSubmission(true);
           }}
           onCancel={() => setShowPhotoSubmit(false)}
         />
       ) : (
         <div className="mt-8 text-center">
-          {/* Check if a submission is pending */}
-          {(() => {
-            try {
-              const submissions = JSON.parse(localStorage.getItem('eggSubmissions') || '[]');
-              const isPending = submissions.some(
-                (sub: any) => sub.huntId === activeHunt.id &&
-                              sub.waypointId === currentWaypoint.id &&
-                              sub.status === 'pending'
-              );
-              
-              if (isPending) {
-                return (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                    <p className="text-yellow-700 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
-                    <p className="text-yellow-600 text-sm">Vent på at bildet blir godkjent før du fortsetter</p>
-                  </div>
-                );
-              }
-            } catch (error) {
-              console.error('Error checking submissions:', error);
-            }
-            
-            return (
-              <Button
-                variant="outline"
-                onClick={() => setShowPhotoSubmit(true)}
-                className="bg-primary hover:bg-primary/90 text-white border-none"
-              >
-                Jeg har funnet påskeegget! Ta bilde
-              </Button>
-            );
-          })()}
+          {checkingSubmission ? (
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary mr-2"></div>
+              <span className="text-gray-500">Sjekker bildeinnleveringer...</span>
+            </div>
+          ) : pendingSubmission ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+              <p className="text-yellow-700 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
+              <p className="text-yellow-600 text-sm mb-3">Vent på at bildet blir godkjent før du fortsetter</p>
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    // Refresh to check if the submission was approved
+                    setCheckingSubmission(true);
+                    
+                    // Manually check submission status
+                    try {
+                      const isPending = await hasPendingSubmission(activeHunt.id, currentWaypoint.id);
+                      
+                      // If submission is no longer pending, trigger completion check
+                      if (!isPending) {
+                        setPendingSubmission(false);
+                        
+                        // Check if this was the last waypoint in the hunt
+                        const waypointsCount = activeHunt.waypoints.length;
+                        const foundWaypoints = activeHunt.waypoints.filter(wp => wp.found).length;
+                        
+                        // If this is the last waypoint, show celebration immediately
+                        if (foundWaypoints === waypointsCount - 1) {
+                          setLocalHuntCompleted(true);
+                        } else {
+                          setShouldCheckCompletion(true);
+                        }
+                      } else {
+                        setPendingSubmission(true);
+                      }
+                    } catch (error) {
+                      console.error('Error checking submission status:', error);
+                    } finally {
+                      setCheckingSubmission(false);
+                    }
+                  }}
+                >
+                  Sjekk status
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() => setShowPhotoSubmit(true)}
+              className="bg-primary hover:bg-primary/90 text-white border-none"
+            >
+              Jeg har funnet påskeegget! Ta bilde
+            </Button>
+          )}
         </div>
       )}
     </div>

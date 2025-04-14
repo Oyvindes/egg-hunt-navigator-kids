@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Hint } from '@/lib/types';
+import MapPicker from './MapPicker';
 
 interface WaypointFormProps {
   huntId: string;
@@ -95,31 +96,46 @@ const WaypointForm = ({ huntId, onComplete }: WaypointFormProps) => {
         />
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="waypoint-lat">Breddegrad (latitude)</Label>
-          <Input
-            id="waypoint-lat"
-            type="number"
-            step="any"
-            value={latitude}
-            onChange={(e) => setLatitude(e.target.value)}
-            placeholder="f.eks. 59.91273"
-            required
-          />
-        </div>
+      <div className="space-y-4">
+        <h3 className="font-medium">Plassering</h3>
         
-        <div className="space-y-2">
-          <Label htmlFor="waypoint-lng">Lengdegrad (longitude)</Label>
-          <Input
-            id="waypoint-lng"
-            type="number"
-            step="any"
-            value={longitude}
-            onChange={(e) => setLongitude(e.target.value)}
-            placeholder="f.eks. 10.74609"
-            required
-          />
+        {/* Map Picker */}
+        <MapPicker
+          latitude={latitude}
+          longitude={longitude}
+          onPositionChange={(lat, lng) => {
+            setLatitude(lat);
+            setLongitude(lng);
+          }}
+        />
+        
+        {/* Still keep manual input for precision adjustments */}
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="space-y-2">
+            <Label htmlFor="waypoint-lat">Breddegrad (latitude)</Label>
+            <Input
+              id="waypoint-lat"
+              type="number"
+              step="any"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              placeholder="f.eks. 59.91273"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="waypoint-lng">Lengdegrad (longitude)</Label>
+            <Input
+              id="waypoint-lng"
+              type="number"
+              step="any"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              placeholder="f.eks. 10.74609"
+              required
+            />
+          </div>
         </div>
       </div>
       
