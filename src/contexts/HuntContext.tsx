@@ -1,68 +1,8 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Hunt, Waypoint, Hint } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
-
-// Sample data - in a real app this would come from a database
-const defaultHint: Hint[] = [
-  { id: '1', text: 'Se etter noe som skinner', distanceThreshold: 100, revealed: false },
-  { id: '2', text: 'Det er fargerikt og gjemt under noe', distanceThreshold: 50, revealed: false },
-  { id: '3', text: 'Sjekk bak den store steinen', distanceThreshold: 15, revealed: false }
-];
-
-const defaultWaypoints: Waypoint[] = [
-  {
-    id: '1',
-    name: 'Påskeegg #1',
-    latitude: 59.91273, 
-    longitude: 10.74609,
-    order: 1,
-    hints: [...defaultHint],
-    found: false
-  },
-  {
-    id: '2',
-    name: 'Påskeegg #2',
-    latitude: 59.91349, 
-    longitude: 10.74683,
-    order: 2,
-    hints: [
-      { id: '4', text: 'Under noe grønt', distanceThreshold: 100, revealed: false },
-      { id: '5', text: 'Nær vann', distanceThreshold: 50, revealed: false },
-      { id: '6', text: 'Ved foten av et tre', distanceThreshold: 15, revealed: false }
-    ],
-    found: false
-  },
-  {
-    id: '3',
-    name: 'Påskeegg #3',
-    latitude: 59.91328,
-    longitude: 10.74512,
-    order: 3,
-    hints: [
-      { id: '7', text: 'Der barna leker', distanceThreshold: 100, revealed: false },
-      { id: '8', text: 'Nær en huske', distanceThreshold: 50, revealed: false },
-      { id: '9', text: 'Under en benk', distanceThreshold: 15, revealed: false }
-    ],
-    found: false
-  }
-];
-
-const defaultHunts: Hunt[] = [
-  {
-    id: '1',
-    name: 'Påskejakt i parken',
-    date: '2025-04-15',
-    waypoints: defaultWaypoints,
-    active: true
-  },
-  {
-    id: '2',
-    name: 'Påskejakt i hagen',
-    date: '2025-04-16',
-    waypoints: [],
-    active: false
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
 
 interface HuntContextProps {
   hunts: Hunt[];
@@ -80,6 +20,7 @@ interface HuntContextProps {
   moveToNextWaypoint: () => void;
   progressPercentage: number;
   isHuntCompleted: boolean;
+  isLoading: boolean;
 }
 
 const HuntContext = createContext<HuntContextProps>({
@@ -98,6 +39,7 @@ const HuntContext = createContext<HuntContextProps>({
   moveToNextWaypoint: () => {},
   progressPercentage: 0,
   isHuntCompleted: false,
+  isLoading: true
 });
 
 export const useHunt = () => useContext(HuntContext);
@@ -107,9 +49,96 @@ interface HuntProviderProps {
 }
 
 export const HuntProvider = ({ children }: HuntProviderProps) => {
-  const [hunts, setHunts] = useState<Hunt[]>(defaultHunts);
-  const [activeHuntId, setActiveHuntId] = useState<string | null>(defaultHunts[0]?.id || null);
+  const [hunts, setHunts] = useState<Hunt[]>([]);
+  const [activeHuntId, setActiveHuntId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  
+  // Fetch hunts from Supabase when the component mounts
+  useEffect(() => {
+    const fetchHunts = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch all hunts
+        const { data: huntsData, error: huntsError } = await supabase
+          .from('hunts')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (huntsError) throw huntsError;
+        
+        const completeHunts: Hunt[] = [];
+        
+        // For each hunt, fetch the waypoints and hints
+        for (const hunt of huntsData) {
+          const { data: waypointsData, error: waypointsError } = await supabase
+            .from('waypoints')
+            .select('*')
+            .eq('hunt_id', hunt.id)
+            .order('order_number', { ascending: true });
+            
+          if (waypointsError) throw waypointsError;
+          
+          const waypoints: Waypoint[] = [];
+          
+          // For each waypoint, fetch the hints
+          for (const waypoint of waypointsData) {
+            const { data: hintsData, error: hintsError } = await supabase
+              .from('hints')
+              .select('*')
+              .eq('waypoint_id', waypoint.id)
+              .order('distance_threshold', { ascending: false });
+              
+            if (hintsError) throw hintsError;
+            
+            waypoints.push({
+              id: waypoint.id,
+              name: waypoint.name,
+              latitude: parseFloat(waypoint.latitude),
+              longitude: parseFloat(waypoint.longitude),
+              order: waypoint.order_number,
+              hints: hintsData.map((hint: any) => ({
+                id: hint.id,
+                text: hint.text,
+                distanceThreshold: hint.distance_threshold,
+                revealed: hint.revealed
+              })),
+              found: waypoint.found,
+              startingHint: waypoint.starting_hint || undefined
+            });
+          }
+          
+          completeHunts.push({
+            id: hunt.id,
+            name: hunt.name,
+            date: hunt.date || undefined,
+            waypoints,
+            active: hunt.active
+          });
+        }
+        
+        setHunts(completeHunts);
+        
+        // Set active hunt if there's at least one hunt
+        if (completeHunts.length > 0) {
+          const activeHunt = completeHunts.find(h => h.active);
+          setActiveHuntId(activeHunt ? activeHunt.id : completeHunts[0].id);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching hunts:', error);
+        toast({
+          title: "Feil ved henting av data",
+          description: "Kunne ikke hente påskejakter fra databasen",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchHunts();
+  }, [toast]);
   
   // Compute the active hunt
   const activeHunt = hunts.find(hunt => hunt.id === activeHuntId) || null;
@@ -126,170 +155,443 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
   const isHuntCompleted = totalWaypoints > 0 && foundWaypoints === totalWaypoints;
   
   // Set the active hunt
-  const setActiveHunt = (huntId: string) => {
+  const setActiveHunt = async (huntId: string) => {
     const huntExists = hunts.some(hunt => hunt.id === huntId);
     if (huntExists) {
       setActiveHuntId(huntId);
+      
+      try {
+        // Update all hunts to inactive
+        await supabase
+          .from('hunts')
+          .update({ active: false })
+          .neq('id', huntId);
+          
+        // Set the selected hunt to active
+        await supabase
+          .from('hunts')
+          .update({ active: true })
+          .eq('id', huntId);
+          
+        // Update the local state
+        setHunts(prevHunts => 
+          prevHunts.map(hunt => ({
+            ...hunt,
+            active: hunt.id === huntId
+          }))
+        );
+      } catch (error) {
+        console.error('Error updating active hunt:', error);
+        toast({
+          title: "Feil ved oppdatering",
+          description: "Kunne ikke aktivere påskejakten",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   // Add a new hunt
-  const addHunt = (hunt: Omit<Hunt, "id">) => {
-    const newHunt: Hunt = {
-      ...hunt,
-      id: Date.now().toString(),
-    };
-    
-    setHunts(prevHunts => [...prevHunts, newHunt]);
-    
-    toast({
-      title: "Påskejakt opprettet",
-      description: `${newHunt.name} ble opprettet`,
-    });
+  const addHunt = async (hunt: Omit<Hunt, "id">) => {
+    try {
+      // Insert the new hunt
+      const { data, error } = await supabase
+        .from('hunts')
+        .insert({ 
+          name: hunt.name,
+          date: hunt.date,
+          active: false
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      const newHunt: Hunt = {
+        ...hunt,
+        id: data.id,
+      };
+      
+      setHunts(prevHunts => [...prevHunts, newHunt]);
+      
+      toast({
+        title: "Påskejakt opprettet",
+        description: `${newHunt.name} ble opprettet`,
+      });
+    } catch (error) {
+      console.error('Error adding hunt:', error);
+      toast({
+        title: "Feil ved opprettelse",
+        description: "Kunne ikke legge til påskejakten",
+        variant: "destructive"
+      });
+    }
   };
 
   // Update an existing hunt
-  const updateHunt = (updatedHunt: Hunt) => {
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => 
-        hunt.id === updatedHunt.id ? updatedHunt : hunt
-      )
-    );
+  const updateHunt = async (updatedHunt: Hunt) => {
+    try {
+      // Update the hunt in the database
+      const { error } = await supabase
+        .from('hunts')
+        .update({
+          name: updatedHunt.name,
+          date: updatedHunt.date,
+          active: updatedHunt.active
+        })
+        .eq('id', updatedHunt.id);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => 
+          hunt.id === updatedHunt.id ? updatedHunt : hunt
+        )
+      );
+    } catch (error) {
+      console.error('Error updating hunt:', error);
+      toast({
+        title: "Feil ved oppdatering",
+        description: "Kunne ikke oppdatere påskejakten",
+        variant: "destructive"
+      });
+    }
   };
 
   // Delete a hunt
-  const deleteHunt = (huntId: string) => {
-    setHunts(prevHunts => prevHunts.filter(hunt => hunt.id !== huntId));
-    
-    // If the active hunt is deleted, set the first available hunt as active
-    if (activeHuntId === huntId) {
-      const remainingHunts = hunts.filter(hunt => hunt.id !== huntId);
-      setActiveHuntId(remainingHunts[0]?.id || null);
+  const deleteHunt = async (huntId: string) => {
+    try {
+      // Delete the hunt from the database
+      // Note: Waypoints and hints will be automatically deleted due to CASCADE
+      const { error } = await supabase
+        .from('hunts')
+        .delete()
+        .eq('id', huntId);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setHunts(prevHunts => prevHunts.filter(hunt => hunt.id !== huntId));
+      
+      // If the active hunt is deleted, set the first available hunt as active
+      if (activeHuntId === huntId) {
+        const remainingHunts = hunts.filter(hunt => hunt.id !== huntId);
+        setActiveHuntId(remainingHunts[0]?.id || null);
+      }
+      
+      toast({
+        title: "Påskejakt slettet",
+        description: "Påskejakten ble slettet",
+      });
+    } catch (error) {
+      console.error('Error deleting hunt:', error);
+      toast({
+        title: "Feil ved sletting",
+        description: "Kunne ikke slette påskejakten",
+        variant: "destructive"
+      });
     }
-    
-    toast({
-      title: "Påskejakt slettet",
-      description: "Påskejakten ble slettet",
-    });
   };
 
   // Add a waypoint to a hunt
-  const addWaypoint = (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => {
-    const newWaypoint: Waypoint = {
-      ...waypoint,
-      id: Date.now().toString(),
-      found: false,
-    };
-    
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => {
-        if (hunt.id === huntId) {
-          return {
-            ...hunt,
-            waypoints: [...hunt.waypoints, newWaypoint]
-          };
+  const addWaypoint = async (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => {
+    try {
+      // Insert the waypoint
+      const { data: waypointData, error: waypointError } = await supabase
+        .from('waypoints')
+        .insert({
+          hunt_id: huntId,
+          name: waypoint.name,
+          latitude: waypoint.latitude,
+          longitude: waypoint.longitude,
+          order_number: waypoint.order,
+          starting_hint: waypoint.startingHint || null,
+          found: false
+        })
+        .select()
+        .single();
+      
+      if (waypointError) throw waypointError;
+      
+      // Insert the hints
+      if (waypoint.hints && waypoint.hints.length > 0) {
+        const hintsToInsert = waypoint.hints
+          .filter(hint => hint.text.trim() !== '')
+          .map(hint => ({
+            waypoint_id: waypointData.id,
+            text: hint.text,
+            distance_threshold: hint.distanceThreshold,
+            revealed: false
+          }));
+          
+        if (hintsToInsert.length > 0) {
+          const { error: hintsError } = await supabase
+            .from('hints')
+            .insert(hintsToInsert);
+            
+          if (hintsError) throw hintsError;
         }
-        return hunt;
-      })
-    );
+      }
+      
+      // Refetch the hunt to get the updated waypoints with hints
+      const { data: refetchedWaypointData, error: refetchError } = await supabase
+        .from('waypoints')
+        .select('*')
+        .eq('id', waypointData.id)
+        .single();
+        
+      if (refetchError) throw refetchError;
+      
+      const { data: hintsData, error: hintsQueryError } = await supabase
+        .from('hints')
+        .select('*')
+        .eq('waypoint_id', waypointData.id);
+        
+      if (hintsQueryError) throw hintsQueryError;
+      
+      const newWaypoint: Waypoint = {
+        id: refetchedWaypointData.id,
+        name: refetchedWaypointData.name,
+        latitude: parseFloat(refetchedWaypointData.latitude),
+        longitude: parseFloat(refetchedWaypointData.longitude),
+        order: refetchedWaypointData.order_number,
+        hints: hintsData.map((hint: any) => ({
+          id: hint.id,
+          text: hint.text,
+          distanceThreshold: hint.distance_threshold,
+          revealed: hint.revealed
+        })),
+        found: refetchedWaypointData.found,
+        startingHint: refetchedWaypointData.starting_hint || undefined
+      };
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => {
+          if (hunt.id === huntId) {
+            return {
+              ...hunt,
+              waypoints: [...hunt.waypoints, newWaypoint]
+            };
+          }
+          return hunt;
+        })
+      );
+    } catch (error) {
+      console.error('Error adding waypoint:', error);
+      toast({
+        title: "Feil ved opprettelse",
+        description: "Kunne ikke legge til posten",
+        variant: "destructive"
+      });
+    }
   };
 
   // Update a waypoint
-  const updateWaypoint = (huntId: string, updatedWaypoint: Waypoint) => {
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => {
-        if (hunt.id === huntId) {
-          return {
-            ...hunt,
-            waypoints: hunt.waypoints.map(waypoint => 
-              waypoint.id === updatedWaypoint.id ? updatedWaypoint : waypoint
-            )
-          };
+  const updateWaypoint = async (huntId: string, updatedWaypoint: Waypoint) => {
+    try {
+      // Update the waypoint in the database
+      const { error: waypointError } = await supabase
+        .from('waypoints')
+        .update({
+          name: updatedWaypoint.name,
+          latitude: updatedWaypoint.latitude,
+          longitude: updatedWaypoint.longitude,
+          order_number: updatedWaypoint.order,
+          starting_hint: updatedWaypoint.startingHint || null,
+          found: updatedWaypoint.found
+        })
+        .eq('id', updatedWaypoint.id);
+        
+      if (waypointError) throw waypointError;
+      
+      // Update hints - this is more complex as we need to add/update/remove hints
+      // For simplicity, we'll delete all existing hints and add the new ones
+      const { error: deleteHintsError } = await supabase
+        .from('hints')
+        .delete()
+        .eq('waypoint_id', updatedWaypoint.id);
+        
+      if (deleteHintsError) throw deleteHintsError;
+      
+      if (updatedWaypoint.hints && updatedWaypoint.hints.length > 0) {
+        const hintsToInsert = updatedWaypoint.hints
+          .filter(hint => hint.text.trim() !== '')
+          .map(hint => ({
+            waypoint_id: updatedWaypoint.id,
+            text: hint.text,
+            distance_threshold: hint.distanceThreshold,
+            revealed: hint.revealed
+          }));
+          
+        if (hintsToInsert.length > 0) {
+          const { error: hintsError } = await supabase
+            .from('hints')
+            .insert(hintsToInsert);
+            
+          if (hintsError) throw hintsError;
         }
-        return hunt;
-      })
-    );
+      }
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => {
+          if (hunt.id === huntId) {
+            return {
+              ...hunt,
+              waypoints: hunt.waypoints.map(waypoint => 
+                waypoint.id === updatedWaypoint.id ? updatedWaypoint : waypoint
+              )
+            };
+          }
+          return hunt;
+        })
+      );
+    } catch (error) {
+      console.error('Error updating waypoint:', error);
+      toast({
+        title: "Feil ved oppdatering",
+        description: "Kunne ikke oppdatere posten",
+        variant: "destructive"
+      });
+    }
   };
 
   // Delete a waypoint
-  const deleteWaypoint = (huntId: string, waypointId: string) => {
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => {
-        if (hunt.id === huntId) {
-          return {
-            ...hunt,
-            waypoints: hunt.waypoints.filter(waypoint => waypoint.id !== waypointId)
-          };
-        }
-        return hunt;
-      })
-    );
+  const deleteWaypoint = async (huntId: string, waypointId: string) => {
+    try {
+      // Delete the waypoint from the database
+      // Hints will be automatically deleted due to CASCADE
+      const { error } = await supabase
+        .from('waypoints')
+        .delete()
+        .eq('id', waypointId);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => {
+          if (hunt.id === huntId) {
+            return {
+              ...hunt,
+              waypoints: hunt.waypoints.filter(waypoint => waypoint.id !== waypointId)
+            };
+          }
+          return hunt;
+        })
+      );
+    } catch (error) {
+      console.error('Error deleting waypoint:', error);
+      toast({
+        title: "Feil ved sletting",
+        description: "Kunne ikke slette posten",
+        variant: "destructive"
+      });
+    }
   };
 
   // Mark a waypoint as found
-  const setWaypointFound = (huntId: string, waypointId: string, found: boolean) => {
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => {
-        if (hunt.id === huntId) {
-          return {
-            ...hunt,
-            waypoints: hunt.waypoints.map(waypoint => {
-              if (waypoint.id === waypointId) {
-                return { ...waypoint, found };
-              }
-              return waypoint;
-            })
-          };
-        }
-        return hunt;
-      })
-    );
-    
-    if (found) {
+  const setWaypointFound = async (huntId: string, waypointId: string, found: boolean) => {
+    try {
+      // Update the waypoint in the database
+      const { error } = await supabase
+        .from('waypoints')
+        .update({ found })
+        .eq('id', waypointId);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => {
+          if (hunt.id === huntId) {
+            return {
+              ...hunt,
+              waypoints: hunt.waypoints.map(waypoint => {
+                if (waypoint.id === waypointId) {
+                  return { ...waypoint, found };
+                }
+                return waypoint;
+              })
+            };
+          }
+          return hunt;
+        })
+      );
+      
+      if (found) {
+        toast({
+          title: "Påskeegg funnet!",
+          description: "Du har funnet et påskeegg! Gå til neste post.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating waypoint found status:', error);
       toast({
-        title: "Påskeegg funnet!",
-        description: "Du har funnet et påskeegg! Gå til neste post.",
+        title: "Feil ved oppdatering",
+        description: "Kunne ikke oppdatere posten",
+        variant: "destructive"
       });
     }
   };
 
   // Mark a hint as revealed
-  const setHintRevealed = (huntId: string, waypointId: string, hintId: string, revealed: boolean) => {
-    setHunts(prevHunts => 
-      prevHunts.map(hunt => {
-        if (hunt.id === huntId) {
-          return {
-            ...hunt,
-            waypoints: hunt.waypoints.map(waypoint => {
-              if (waypoint.id === waypointId) {
-                return {
-                  ...waypoint,
-                  hints: waypoint.hints.map(hint => {
-                    if (hint.id === hintId) {
-                      return { ...hint, revealed };
-                    }
-                    return hint;
-                  })
-                };
-              }
-              return waypoint;
-            })
-          };
-        }
-        return hunt;
-      })
-    );
-    
-    if (revealed) {
+  const setHintRevealed = async (huntId: string, waypointId: string, hintId: string, revealed: boolean) => {
+    try {
+      // Update the hint in the database
+      const { error } = await supabase
+        .from('hints')
+        .update({ revealed })
+        .eq('id', hintId);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setHunts(prevHunts => 
+        prevHunts.map(hunt => {
+          if (hunt.id === huntId) {
+            return {
+              ...hunt,
+              waypoints: hunt.waypoints.map(waypoint => {
+                if (waypoint.id === waypointId) {
+                  return {
+                    ...waypoint,
+                    hints: waypoint.hints.map(hint => {
+                      if (hint.id === hintId) {
+                        return { ...hint, revealed };
+                      }
+                      return hint;
+                    })
+                  };
+                }
+                return waypoint;
+              })
+            };
+          }
+          return hunt;
+        })
+      );
+      
+      if (revealed) {
+        toast({
+          title: "Nytt hint",
+          description: "Et nytt hint er tilgjengelig!",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating hint revealed status:', error);
       toast({
-        title: "Nytt hint",
-        description: "Et nytt hint er tilgjengelig!",
+        title: "Feil ved oppdatering",
+        description: "Kunne ikke oppdatere hintet",
+        variant: "destructive"
       });
     }
   };
 
   // Move to the next waypoint
-  const moveToNextWaypoint = () => {
+  const moveToNextWaypoint = async () => {
     if (!activeHunt || !currentWaypoint) return;
     
     // Sort waypoints by order
@@ -300,7 +602,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     
     // If current waypoint is found, mark it as found
     if (currentIndex !== -1 && !sortedWaypoints[currentIndex].found) {
-      setWaypointFound(activeHunt.id, currentWaypoint.id, true);
+      await setWaypointFound(activeHunt.id, currentWaypoint.id, true);
     }
   };
 
@@ -329,7 +631,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
     setHintRevealed,
     moveToNextWaypoint,
     progressPercentage,
-    isHuntCompleted
+    isHuntCompleted,
+    isLoading
   };
 
   return <HuntContext.Provider value={value}>{children}</HuntContext.Provider>;

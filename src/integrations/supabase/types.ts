@@ -9,7 +9,109 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      hints: {
+        Row: {
+          created_at: string | null
+          distance_threshold: number
+          id: string
+          revealed: boolean
+          text: string
+          waypoint_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          distance_threshold: number
+          id?: string
+          revealed?: boolean
+          text: string
+          waypoint_id: string
+        }
+        Update: {
+          created_at?: string | null
+          distance_threshold?: number
+          id?: string
+          revealed?: boolean
+          text?: string
+          waypoint_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hints_waypoint_id_fkey"
+            columns: ["waypoint_id"]
+            isOneToOne: false
+            referencedRelation: "waypoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hunts: {
+        Row: {
+          active: boolean
+          created_at: string | null
+          date: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      waypoints: {
+        Row: {
+          created_at: string | null
+          found: boolean
+          hunt_id: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          order_number: number
+          starting_hint: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          found?: boolean
+          hunt_id: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          order_number: number
+          starting_hint?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          found?: boolean
+          hunt_id?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          order_number?: number
+          starting_hint?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waypoints_hunt_id_fkey"
+            columns: ["hunt_id"]
+            isOneToOne: false
+            referencedRelation: "hunts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

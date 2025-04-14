@@ -8,7 +8,7 @@ import { useHunt } from '@/contexts/HuntContext';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { activeHunt } = useHunt();
+  const { activeHunt, isLoading } = useHunt();
   
   return (
     <div className="min-h-screen bg-background container max-w-md mx-auto p-4">
@@ -29,7 +29,13 @@ const Home = () => {
       
       <div className="relative">
         <div className="bg-card rounded-lg p-6 shadow-lg border border-gray-800">
-          <HuntNavigation />
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <HuntNavigation />
+          )}
         </div>
       </div>
     </div>
