@@ -34,8 +34,8 @@ export async function fetchHunts() {
       waypoints.push({
         id: waypoint.id,
         name: waypoint.name,
-        latitude: parseFloat(waypoint.latitude as string),
-        longitude: parseFloat(waypoint.longitude as string),
+        latitude: parseFloat(waypoint.latitude as unknown as string),
+        longitude: parseFloat(waypoint.longitude as unknown as string),
         order: waypoint.order_number,
         hints: hintsData.map((hint: any) => ({
           id: hint.id,
@@ -109,7 +109,7 @@ export async function removeHunt(huntId: string) {
   if (error) throw error;
 }
 
-export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "id" | "found"> & { latitude: string | number; longitude: string | number }) {
+export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "id" | "found"> & { latitude: number; longitude: number }) {
   const latitudeString = waypoint.latitude.toString();
   const longitudeString = waypoint.longitude.toString();
   
@@ -169,7 +169,7 @@ export async function createWaypoint(huntId: string, waypoint: Omit<Waypoint, "i
   };
 }
 
-export async function modifyWaypoint(waypointId: string, waypointData: Partial<Waypoint> & { latitude?: string | number; longitude?: string | number }) {
+export async function modifyWaypoint(waypointId: string, waypointData: Partial<Waypoint> & { latitude?: number; longitude?: number }) {
   const latitudeString = waypointData.latitude?.toString();
   const longitudeString = waypointData.longitude?.toString();
   
