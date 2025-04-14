@@ -1,26 +1,21 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Hunt, Waypoint, Hint } from '@/lib/types';
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-interface HuntContextProps {
-  hunts: Hunt[];
-  activeHunt: Hunt | null;
-  currentWaypoint: Waypoint | null;
-  setActiveHunt: (huntId: string) => void;
-  addHunt: (hunt: Omit<Hunt, "id">) => void;
-  updateHunt: (hunt: Hunt) => void;
-  deleteHunt: (huntId: string) => void;
-  addWaypoint: (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => void;
-  updateWaypoint: (huntId: string, waypoint: Waypoint) => void;
-  deleteWaypoint: (huntId: string, waypointId: string) => void;
-  setWaypointFound: (huntId: string, waypointId: string, found: boolean) => void;
-  setHintRevealed: (huntId: string, waypointId: string, hintId: string, revealed: boolean) => void;
-  moveToNextWaypoint: () => void;
-  progressPercentage: number;
-  isHuntCompleted: boolean;
-  isLoading: boolean;
-}
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { Hunt, Waypoint } from '@/lib/types';
+import { useToast } from "@/hooks/use-toast";
+import { HuntContextProps } from './types';
+import {
+  fetchHunts,
+  updateActiveHunt,
+  createHunt,
+  updateHuntData,
+  removeHunt,
+  createWaypoint,
+  modifyWaypoint,
+  removeWaypoint,
+  updateWaypointFoundStatus,
+  updateHintRevealedStatus
+} from './huntService';
+import { findNextWaypoint, calculateProgress } from './huntUtils';
 
 const HuntContext = createContext<HuntContextProps>({
   hunts: [],
@@ -54,71 +49,16 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
   const { toast } = useToast();
   
   useEffect(() => {
-    const fetchHunts = async () => {
+    const loadInitialData = async () => {
       setIsLoading(true);
       try {
-        const { data: huntsData, error: huntsError } = await supabase
-          .from('hunts')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (huntsError) throw huntsError;
+        const huntsData = await fetchHunts();
+        setHunts(huntsData);
         
-        const completeHunts: Hunt[] = [];
-        
-        for (const hunt of huntsData) {
-          const { data: waypointsData, error: waypointsError } = await supabase
-            .from('waypoints')
-            .select('*')
-            .eq('hunt_id', hunt.id)
-            .order('order_number', { ascending: true });
-            
-          if (waypointsError) throw waypointsError;
-          
-          const waypoints: Waypoint[] = [];
-          
-          for (const waypoint of waypointsData) {
-            const { data: hintsData, error: hintsError } = await supabase
-              .from('hints')
-              .select('*')
-              .eq('waypoint_id', waypoint.id)
-              .order('distance_threshold', { ascending: false });
-              
-            if (hintsError) throw hintsError;
-            
-            waypoints.push({
-              id: waypoint.id,
-              name: waypoint.name,
-              latitude: parseFloat(waypoint.latitude),
-              longitude: parseFloat(waypoint.longitude),
-              order: waypoint.order_number,
-              hints: hintsData.map((hint: any) => ({
-                id: hint.id,
-                text: hint.text,
-                distanceThreshold: hint.distance_threshold,
-                revealed: hint.revealed
-              })),
-              found: waypoint.found,
-              startingHint: waypoint.starting_hint || undefined
-            });
-          }
-          
-          completeHunts.push({
-            id: hunt.id,
-            name: hunt.name,
-            date: hunt.date || undefined,
-            waypoints,
-            active: hunt.active
-          });
+        if (huntsData.length > 0) {
+          const activeHunt = huntsData.find(h => h.active);
+          setActiveHuntId(activeHunt ? activeHunt.id : huntsData[0].id);
         }
-        
-        setHunts(completeHunts);
-        
-        if (completeHunts.length > 0) {
-          const activeHunt = completeHunts.find(h => h.active);
-          setActiveHuntId(activeHunt ? activeHunt.id : completeHunts[0].id);
-        }
-        
       } catch (error) {
         console.error('Error fetching hunts:', error);
         toast({
@@ -131,17 +71,15 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
       }
     };
     
-    fetchHunts();
+    loadInitialData();
   }, [toast]);
   
   const activeHunt = hunts.find(hunt => hunt.id === activeHuntId) || null;
-  const currentWaypoint = activeHunt?.waypoints.find(wp => !wp.found) || null;
+  const currentWaypoint = activeHunt ? findNextWaypoint(activeHunt.waypoints) : null;
   
-  const totalWaypoints = activeHunt?.waypoints.length || 0;
-  const foundWaypoints = activeHunt?.waypoints.filter(wp => wp.found).length || 0;
-  const progressPercentage = totalWaypoints > 0 ? (foundWaypoints / totalWaypoints) * 100 : 0;
-  
-  const isHuntCompleted = totalWaypoints > 0 && foundWaypoints === totalWaypoints;
+  const { progressPercentage, isCompleted: isHuntCompleted } = activeHunt 
+    ? calculateProgress(activeHunt.waypoints) 
+    : { progressPercentage: 0, isCompleted: false };
   
   const setActiveHunt = async (huntId: string) => {
     const huntExists = hunts.some(hunt => hunt.id === huntId);
@@ -149,16 +87,8 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
       setActiveHuntId(huntId);
       
       try {
-        await supabase
-          .from('hunts')
-          .update({ active: false })
-          .neq('id', huntId);
-          
-        await supabase
-          .from('hunts')
-          .update({ active: true })
-          .eq('id', huntId);
-          
+        await updateActiveHunt(huntId);
+        
         setHunts(prevHunts => 
           prevHunts.map(hunt => ({
             ...hunt,
@@ -178,17 +108,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const addHunt = async (hunt: Omit<Hunt, "id">) => {
     try {
-      const { data, error } = await supabase
-        .from('hunts')
-        .insert({ 
-          name: hunt.name,
-          date: hunt.date,
-          active: false
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await createHunt(hunt);
       
       const newHunt: Hunt = {
         ...hunt,
@@ -213,16 +133,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const updateHunt = async (updatedHunt: Hunt) => {
     try {
-      const { error } = await supabase
-        .from('hunts')
-        .update({
-          name: updatedHunt.name,
-          date: updatedHunt.date,
-          active: updatedHunt.active
-        })
-        .eq('id', updatedHunt.id);
-        
-      if (error) throw error;
+      await updateHuntData(updatedHunt);
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => 
@@ -241,12 +152,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const deleteHunt = async (huntId: string) => {
     try {
-      const { error } = await supabase
-        .from('hunts')
-        .delete()
-        .eq('id', huntId);
-        
-      if (error) throw error;
+      await removeHunt(huntId);
       
       setHunts(prevHunts => prevHunts.filter(hunt => hunt.id !== huntId));
       
@@ -271,70 +177,22 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const addWaypoint = async (huntId: string, waypoint: Omit<Waypoint, "id" | "found">) => {
     try {
-      const { data: waypointData, error: waypointError } = await supabase
-        .from('waypoints')
-        .insert({
-          hunt_id: huntId,
-          name: waypoint.name,
-          latitude: waypoint.latitude.toString(),
-          longitude: waypoint.longitude.toString(),
-          order_number: waypoint.order,
-          starting_hint: waypoint.startingHint || null,
-          found: false
-        })
-        .select()
-        .single();
-      
-      if (waypointError) throw waypointError;
-      
-      if (waypoint.hints && waypoint.hints.length > 0) {
-        const hintsToInsert = waypoint.hints
-          .filter(hint => hint.text.trim() !== '')
-          .map(hint => ({
-            waypoint_id: waypointData.id,
-            text: hint.text,
-            distance_threshold: hint.distanceThreshold,
-            revealed: false
-          }));
-          
-        if (hintsToInsert.length > 0) {
-          const { error: hintsError } = await supabase
-            .from('hints')
-            .insert(hintsToInsert);
-            
-          if (hintsError) throw hintsError;
-        }
-      }
-      
-      const { data: refetchedWaypointData, error: refetchError } = await supabase
-        .from('waypoints')
-        .select('*')
-        .eq('id', waypointData.id)
-        .single();
-        
-      if (refetchError) throw refetchError;
-      
-      const { data: hintsData, error: hintsQueryError } = await supabase
-        .from('hints')
-        .select('*')
-        .eq('waypoint_id', waypointData.id);
-        
-      if (hintsQueryError) throw hintsQueryError;
+      const { waypointData, hintsData } = await createWaypoint(huntId, waypoint);
       
       const newWaypoint: Waypoint = {
-        id: refetchedWaypointData.id,
-        name: refetchedWaypointData.name,
-        latitude: parseFloat(refetchedWaypointData.latitude),
-        longitude: parseFloat(refetchedWaypointData.longitude),
-        order: refetchedWaypointData.order_number,
+        id: waypointData.id,
+        name: waypointData.name,
+        latitude: parseFloat(waypointData.latitude as string),
+        longitude: parseFloat(waypointData.longitude as string),
+        order: waypointData.order_number,
         hints: hintsData.map((hint: any) => ({
           id: hint.id,
           text: hint.text,
           distanceThreshold: hint.distance_threshold,
           revealed: hint.revealed
         })),
-        found: refetchedWaypointData.found,
-        startingHint: refetchedWaypointData.starting_hint || undefined
+        found: waypointData.found,
+        startingHint: waypointData.starting_hint || undefined
       };
       
       setHunts(prevHunts => 
@@ -360,45 +218,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const updateWaypoint = async (huntId: string, updatedWaypoint: Waypoint) => {
     try {
-      const { error: waypointError } = await supabase
-        .from('waypoints')
-        .update({
-          name: updatedWaypoint.name,
-          latitude: updatedWaypoint.latitude.toString(),
-          longitude: updatedWaypoint.longitude.toString(),
-          order_number: updatedWaypoint.order,
-          starting_hint: updatedWaypoint.startingHint || null,
-          found: updatedWaypoint.found
-        })
-        .eq('id', updatedWaypoint.id);
-        
-      if (waypointError) throw waypointError;
-      
-      const { error: deleteHintsError } = await supabase
-        .from('hints')
-        .delete()
-        .eq('waypoint_id', updatedWaypoint.id);
-        
-      if (deleteHintsError) throw deleteHintsError;
-      
-      if (updatedWaypoint.hints && updatedWaypoint.hints.length > 0) {
-        const hintsToInsert = updatedWaypoint.hints
-          .filter(hint => hint.text.trim() !== '')
-          .map(hint => ({
-            waypoint_id: updatedWaypoint.id,
-            text: hint.text,
-            distance_threshold: hint.distanceThreshold,
-            revealed: hint.revealed
-          }));
-          
-        if (hintsToInsert.length > 0) {
-          const { error: hintsError } = await supabase
-            .from('hints')
-            .insert(hintsToInsert);
-            
-          if (hintsError) throw hintsError;
-        }
-      }
+      await modifyWaypoint(updatedWaypoint.id, updatedWaypoint);
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
@@ -425,12 +245,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const deleteWaypoint = async (huntId: string, waypointId: string) => {
     try {
-      const { error } = await supabase
-        .from('waypoints')
-        .delete()
-        .eq('id', waypointId);
-        
-      if (error) throw error;
+      await removeWaypoint(waypointId);
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
@@ -455,12 +270,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const setWaypointFound = async (huntId: string, waypointId: string, found: boolean) => {
     try {
-      const { error } = await supabase
-        .from('waypoints')
-        .update({ found })
-        .eq('id', waypointId);
-        
-      if (error) throw error;
+      await updateWaypointFoundStatus(waypointId, found);
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => {
@@ -497,12 +307,7 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
 
   const setHintRevealed = async (huntId: string, waypointId: string, hintId: string, revealed: boolean) => {
     try {
-      const { error } = await supabase
-        .from('hints')
-        .update({ revealed })
-        .eq('id', hintId);
-        
-      if (error) throw error;
+      await updateHintRevealedStatus(hintId, revealed);
       
       setHunts(prevHunts => 
         prevHunts.map(hunt => {

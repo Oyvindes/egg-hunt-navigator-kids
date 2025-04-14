@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LocationProvider } from "@/contexts/LocationContext";
-import { HuntProvider } from "@/contexts/HuntContext";
+import { HuntProvider } from "@/contexts/hunt";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";

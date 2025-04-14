@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useHunt } from '@/contexts/HuntContext';
+import { useHunt } from '@/contexts/hunt';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, MapPin } from 'lucide-react';
 import { Waypoint } from '@/lib/types';

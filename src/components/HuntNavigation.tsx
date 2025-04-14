@@ -5,7 +5,7 @@ import TemperatureIndicator from './TemperatureIndicator';
 import DistanceMeter from './DistanceMeter';
 import HintsList from './HintsList';
 import { useLocation } from '@/contexts/LocationContext';
-import { useHunt } from '@/contexts/HuntContext';
+import { useHunt } from '@/contexts/hunt';
 import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo-utils';
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';

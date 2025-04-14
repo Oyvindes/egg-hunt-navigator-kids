@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import HuntNavigation from '@/components/HuntNavigation';
 import { Button } from '@/components/ui/button';
 import { Settings, Egg, Rabbit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useHunt } from '@/contexts/HuntContext';
+import { useHunt } from '@/contexts/hunt';
 
 const getRandomPosition = () => {
   return {
