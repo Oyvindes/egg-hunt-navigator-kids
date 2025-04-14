@@ -29,6 +29,13 @@ const InputOTPGroup = React.forwardRef<
 ))
 InputOTPGroup.displayName = "InputOTPGroup"
 
+// Define the expected slot shape to fix TypeScript errors
+interface OTPSlot {
+  char?: string;
+  hasFakeCaret?: boolean;
+  isActive?: boolean;
+}
+
 const InputOTPSlot = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div"> & { index: number }
@@ -50,7 +57,7 @@ const InputOTPSlot = React.forwardRef<
   }
   
   // Check if the slot exists at the given index
-  const slot = inputOTPContext.slots[index] || {}
+  const slot = inputOTPContext.slots[index] || {} as OTPSlot
   const { char, hasFakeCaret, isActive } = slot
 
   return (
