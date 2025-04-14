@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import HuntForm from '@/components/admin/HuntForm';
 import HuntsList from '@/components/admin/HuntsList';
 import WaypointForm from '@/components/admin/WaypointForm';
 import WaypointsList from '@/components/admin/WaypointsList';
+import PinCodeEntry from '@/components/admin/PinCodeEntry';
 import { useHunt } from '@/contexts/HuntContext';
 import { Hunt, Waypoint } from '@/lib/types';
 
@@ -16,10 +17,49 @@ const Admin = () => {
   const { activeHunt } = useHunt();
   const [showAddWaypoint, setShowAddWaypoint] = useState(false);
   const [editingWaypoint, setEditingWaypoint] = useState<Waypoint | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    // Check if user is authenticated from localStorage
+    const adminAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+    setIsAuthenticated(adminAuthenticated);
+  }, []);
   
   const handleBackClick = () => {
     navigate('/');
   };
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuthenticated');
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container max-w-md mx-auto p-4">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleBackClick} 
+            className="bg-easter-pink hover:bg-easter-purple rounded-full"
+          >
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </Button>
+          <h1 className="text-2xl font-bold ml-2 text-primary flex items-center">
+            Admin
+            <Sparkles className="h-4 w-4 ml-2 text-yellow-400" />
+          </h1>
+        </div>
+        
+        <PinCodeEntry onSuccess={handleAuthSuccess} />
+      </div>
+    );
+  }
   
   return (
     <div className="container max-w-md mx-auto p-4">
@@ -39,13 +79,23 @@ const Admin = () => {
           </h1>
         </div>
         
-        <Button
-          variant="outline"
-          onClick={handleBackClick}
-          className="text-primary border-primary hover:bg-primary/10"
-        >
-          Tilbake til hovedsiden
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="text-gray-600 border-gray-300 hover:bg-gray-100"
+          >
+            Logg ut
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={handleBackClick}
+            className="text-primary border-primary hover:bg-primary/10"
+          >
+            Tilbake til hovedsiden
+          </Button>
+        </div>
       </div>
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
