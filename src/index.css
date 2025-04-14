@@ -1,12 +1,11 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 95%; /* Light background */
-    --foreground: 0 0% 10%; /* Almost black text */
+    --background: 0 0% 0%; /* Black background */
+    --foreground: 0 0% 95%; /* Light text for contrast */
     --primary: 263 70% 50%; /* Bright purple */
     --primary-foreground: 0 0% 10%; /* Black text */
     --secondary: 198 93% 55%; /* Bright blue */
@@ -44,6 +43,64 @@
   
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
+  }
+  
+}
+
+/* 3D Gold Text Styling - Separate from Tailwind layers to avoid parsing issues */
+.gold-3d-text {
+  color: #FFD700;
+  font-weight: 700;
+  text-shadow:
+    0 1px 0 #E6C200,
+    0 2px 0 #CCAC00,
+    0 3px 0 #B39700,
+    0 4px 0 #998200,
+    0 5px 0 #806C00,
+    0 6px 0 #665700,
+    0 7px 0 #4D4200,
+    0 8px 7px rgba(0,0,0,0.4),
+    0 9px 10px rgba(0,0,0,0.2);
+  background: linear-gradient(180deg,
+    #FFD700 0%,
+    #FFC107 20%,
+    #FFEC8B 40%,
+    #FFC107 60%,
+    #DAA520 80%,
+    #B8860B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  transform: perspective(500px) rotateX(15deg);
+  letter-spacing: 1px;
+  animation: gold-shimmer 3s infinite alternate;
+}
+
+@keyframes gold-shimmer {
+  0% {
+    filter: brightness(100%) contrast(1);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    transform: perspective(500px) rotateX(15deg) rotateY(-5deg);
+  }
+  100% {
+    filter: brightness(130%) contrast(1.2);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.3);
+    transform: perspective(500px) rotateX(15deg) rotateY(5deg);
+  }
+}
+
+@keyframes falling {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0.7;
   }
 }
 

@@ -56,7 +56,19 @@ export const HuntProvider = ({ children }: HuntProviderProps) => {
         
         if (huntsData.length > 0) {
           const activeHunt = huntsData.find(h => h.active);
-          setActiveHuntId(activeHunt ? activeHunt.id : huntsData[0].id);
+          const activeId = activeHunt ? activeHunt.id : huntsData[0].id;
+          setActiveHuntId(activeId);
+          
+          // Ensure the hunt is marked as active in the database
+          if (!activeHunt) {
+            await updateActiveHunt(activeId);
+            setHunts(prevHunts =>
+              prevHunts.map(hunt => ({
+                ...hunt,
+                active: hunt.id === activeId
+              }))
+            );
+          }
         }
       } catch (error) {
         console.error('Error fetching hunts:', error);

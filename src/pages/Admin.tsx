@@ -113,9 +113,8 @@ const Admin = () => {
               >
                 Påskejakter
               </TabsTrigger>
-              <TabsTrigger 
-                value="waypoints" 
-                disabled={!activeHunt} 
+              <TabsTrigger
+                value="waypoints"
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
               >
                 Poster
@@ -128,13 +127,13 @@ const Admin = () => {
             </TabsContent>
             
             <TabsContent value="waypoints" className="p-6 space-y-4">
-              {activeHunt && (
+              {activeHunt ? (
                 <>
                   <div className="bg-easter-green/10 rounded-lg p-4 shadow-sm border border-primary/20">
                     <h2 className="font-semibold">Poster for: <span className="text-primary">{activeHunt.name}</span></h2>
                     
                     {!showAddWaypoint ? (
-                      <Button 
+                      <Button
                         onClick={() => setShowAddWaypoint(true)}
                         className="w-full mt-4 bg-secondary hover:bg-secondary/80 text-white"
                       >
@@ -142,11 +141,11 @@ const Admin = () => {
                       </Button>
                     ) : (
                       <>
-                        <WaypointForm 
+                        <WaypointForm
                           huntId={activeHunt.id}
                           onComplete={() => setShowAddWaypoint(false)}
                         />
-                        <Button 
+                        <Button
                           onClick={() => setShowAddWaypoint(false)}
                           className="w-full mt-2"
                           variant="ghost"
@@ -159,6 +158,17 @@ const Admin = () => {
                   
                   <WaypointsList huntId={activeHunt.id} />
                 </>
+              ) : (
+                <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 text-center">
+                  <h3 className="text-lg font-medium text-yellow-800 mb-2">Ingen aktiv påskejakt</h3>
+                  <p className="text-yellow-700 mb-4">Du må opprette eller velge en påskejakt først.</p>
+                  <Button
+                    onClick={() => document.querySelector('[value="hunts"]')?.dispatchEvent(new Event('click'))}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Gå til Påskejakter
+                  </Button>
+                </div>
               )}
             </TabsContent>
           </Tabs>
