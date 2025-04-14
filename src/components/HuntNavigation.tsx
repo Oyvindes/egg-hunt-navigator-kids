@@ -127,7 +127,7 @@ const HuntNavigation = () => {
         )}
       </div>
       
-      {distance !== null && distance > 200 ? (
+      {distance !== null && distance > 100 ? (
         <CompassArrow 
           targetLatitude={currentWaypoint.latitude} 
           targetLongitude={currentWaypoint.longitude} 
