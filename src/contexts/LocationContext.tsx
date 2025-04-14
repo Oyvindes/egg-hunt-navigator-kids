@@ -106,7 +106,7 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
       {
         enableHighAccuracy: true,
         maximumAge: 0,
-        timeout: 5000
+        timeout: 2000  // Set timeout to 2000ms (2 seconds)
       }
     );
     
