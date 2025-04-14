@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import HuntNavigation from '@/components/HuntNavigation';
 import { Button } from '@/components/ui/button';
@@ -20,14 +19,12 @@ const Home = () => {
   const [eggPositions, setEggPositions] = useState<Array<{top: string, left: string, animationDelay: string}>>([]);
   
   useEffect(() => {
-    // Create 5 randomly positioned eggs
     const positions = Array.from({length: 5}, () => getRandomPosition());
     setEggPositions(positions);
   }, []);
   
   return (
     <div className="min-h-screen bg-background container max-w-md mx-auto p-4 relative overflow-hidden">
-      {/* Animated Easter decorations */}
       {eggPositions.map((pos, i) => (
         <div 
           key={i} 
