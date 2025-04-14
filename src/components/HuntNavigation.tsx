@@ -127,12 +127,11 @@ const HuntNavigation = () => {
         )}
       </div>
       
-      {distance !== null && distance > 100 ? (
-        <CompassArrow 
-          targetLatitude={currentWaypoint.latitude} 
-          targetLongitude={currentWaypoint.longitude} 
-        />
-      ) : null}
+      {/* Always show compass arrow regardless of distance */}
+      <CompassArrow
+        targetLatitude={currentWaypoint.latitude}
+        targetLongitude={currentWaypoint.longitude}
+      />
       
       {distance !== null && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
