@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import HuntNavigation from '@/components/HuntNavigation';
 import { Button } from '@/components/ui/button';
-import { MapPin, Settings, Egg, Rabbit } from 'lucide-react';
+import { Settings, Egg, Rabbit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useHunt } from '@/contexts/HuntContext';
 
@@ -46,23 +46,25 @@ const Home = () => {
         </div>
       ))}
       
-      <div className="flex justify-between items-center mb-6 relative z-10">
-        <div>
-          <h1 className="text-3xl font-bold text-primary relative">
-            <span className="relative inline-block">
-              Oscar og Heddas påskejakt!
-              <span className="absolute -top-1 -right-2 animate-bounce-subtle">
-                <Egg className="h-5 w-5 text-yellow-500" />
-              </span>
+      <div className="flex flex-col items-center justify-center mb-6 relative z-10 text-center">
+        <h1 className="text-3xl font-bold text-primary relative">
+          <span className="inline-block">
+            Oscar og Heddas påskejakt!
+            <span className="absolute -top-1 -right-2 animate-bounce-subtle">
+              <Egg className="h-5 w-5 text-yellow-500" />
             </span>
-          </h1>
-          {activeHunt && <p className="text-sm bg-primary/20 text-primary inline-block px-2 py-1 rounded-full">{activeHunt.name}</p>}
-        </div>
+          </span>
+        </h1>
+        {activeHunt && (
+          <p className="text-sm bg-primary/20 text-primary inline-block px-2 py-1 rounded-full mt-2">
+            {activeHunt.name}
+          </p>
+        )}
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => navigate('/admin')}
-          className="bg-primary/10 hover:bg-primary/20 rounded-full relative z-10"
+          className="absolute top-0 right-0 bg-primary/10 hover:bg-primary/20 rounded-full"
         >
           <Settings className="h-5 w-5 text-primary" />
         </Button>
