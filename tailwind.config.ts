@@ -61,10 +61,22 @@ export default {
           border: 'hsl(240 3.7% 15.9%)', // Dark sidebar border
           ring: 'hsl(217.2 91.2% 59.8%)' // Bright sidebar ring
         },
-        'text-primary': 'hsl(var(--text-primary) / <alpha-value>)', // Light Gray for primary text
-        'text-secondary': 'hsl(var(--text-secondary) / <alpha-value>)', // Bright Blue for interactive elements
-        'text-accent': 'hsl(var(--text-accent) / <alpha-value>)', // Primary Purple for headings
-        'text-highlight': 'hsl(var(--text-highlight) / <alpha-value>)' // Vivid Purple for emphasis
+        'text-primary': {
+          DEFAULT: 'hsl(var(--text-primary))', // White text for dark backgrounds
+          foreground: 'hsl(var(--text-primary))'
+        },
+        'text-secondary': {
+          DEFAULT: 'hsl(var(--text-secondary))', // Bright interactive text
+          foreground: 'hsl(var(--text-secondary))'
+        },
+        'text-accent': {
+          DEFAULT: 'hsl(var(--text-accent))', // Accent text color
+          foreground: 'hsl(var(--text-accent))'
+        },
+        'text-highlight': {
+          DEFAULT: 'hsl(var(--text-highlight))', // Highlight text color
+          foreground: 'hsl(var(--text-highlight))'
+        }
       },
       borderRadius: {
         lg: 'var(--radius)',
