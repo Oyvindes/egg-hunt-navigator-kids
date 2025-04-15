@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Upload, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPhoto, createPhotoSubmission } from '@/integrations/supabase/photoService';
-import { compressImage } from '@/lib/imageUtils';
+import { compressImage } from '../lib/imageUtils';
 
 interface PhotoSubmitProps {
   waypointId: string;

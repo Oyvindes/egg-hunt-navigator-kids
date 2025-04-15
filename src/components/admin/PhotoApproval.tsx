@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, X, Image, RefreshCw } from 'lucide-react';
+import { Check, X, Image, RefreshCw, Volume2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useHunt } from '@/contexts/hunt';
 import {
@@ -8,10 +8,13 @@ import {
   updateSubmissionStatus,
   type PhotoSubmission
 } from '@/integrations/supabase/photoService';
+import { triggerNotification } from '@/lib/notificationUtils';
 
 const PhotoApproval = () => {
   const [submissions, setSubmissions] = useState<PhotoSubmission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const previousSubmissionCount = useRef(0);
   const { toast } = useToast();
   const { hunts, setWaypointFound } = useHunt();
   
@@ -19,6 +22,21 @@ const PhotoApproval = () => {
     setLoading(true);
     try {
       const pendingSubmissions = await getPendingPhotoSubmissions();
+      
+      // Check if there are new submissions since last check
+      if (pendingSubmissions.length > previousSubmissionCount.current && notificationsEnabled) {
+        // Play sound and vibrate for new submissions
+        triggerNotification();
+        
+        // Show toast notification
+        toast({
+          title: "Ny bildeinnlevering",
+          description: "En ny forespørsel om bildegodkjenning har kommet inn",
+        });
+      }
+      
+      // Store current count for next comparison
+      previousSubmissionCount.current = pendingSubmissions.length;
       setSubmissions(pendingSubmissions);
     } catch (error) {
       console.error('Error loading submissions:', error);
@@ -98,7 +116,6 @@ const PhotoApproval = () => {
       });
     }
   };
-  
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -106,14 +123,29 @@ const PhotoApproval = () => {
           <Image className="mr-2 h-5 w-5 text-primary" />
           Bildeinnleveringer
         </h2>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={loadSubmissions}
-          className="flex items-center"
-        >
-          <RefreshCw className="h-4 w-4 mr-1" /> Oppdater
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+            className="flex items-center"
+            title={notificationsEnabled ? "Deaktiver varsler" : "Aktiver varsler"}
+          >
+            {notificationsEnabled ? (
+              <Volume2 className="h-4 w-4 text-green-500" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-gray-400" />
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadSubmissions}
+            className="flex items-center"
+          >
+            <RefreshCw className="h-4 w-4 mr-1" /> Oppdater
+          </Button>
+        </div>
       </div>
       
       {loading ? (
