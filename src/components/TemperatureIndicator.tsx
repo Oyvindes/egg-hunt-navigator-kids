@@ -12,15 +12,15 @@ const TemperatureIndicator = ({ distance }: TemperatureIndicatorProps) => {
   const getIndicatorClasses = () => {
     switch (temperature) {
       case 'ice':
-        return 'bg-blue-500/30 animate-pulse-ice border border-blue-400/30 text-blue-100';
+        return 'bg-blue-500/30 animate-pulse-ice border border-blue-400/30 text-black';
       case 'cold':
-        return 'bg-blue-400/20 animate-pulse-cold border border-blue-300/30 text-blue-100';
+        return 'bg-blue-400/20 animate-pulse-cold border border-blue-300/30 text-black';
       case 'warm':
-        return 'bg-red-400/20 animate-pulse-warm border border-red-300/30 text-red-100';
+        return 'bg-red-400/20 animate-pulse-warm border border-red-300/30 text-black';
       case 'hot':
-        return 'bg-red-500/30 animate-pulse-hot border border-red-400/30 text-red-100';
+        return 'bg-red-500/30 animate-pulse-hot border border-red-400/30 text-black';
       default:
-        return 'bg-gray-500/20 border border-gray-400/30 text-gray-200';
+        return 'bg-gray-500/20 border border-gray-400/30 text-black';
     }
   };
   
