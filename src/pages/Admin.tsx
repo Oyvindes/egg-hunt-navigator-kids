@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Map, Plus, Sparkles, Image } from 'lucide-react';
+import { ArrowLeft, Map, Plus, Sparkles, Image, MapPin } from 'lucide-react';
 import { Waypoint } from '@/lib/types';
 import HuntForm from '@/components/admin/HuntForm';
 import HuntsList from '@/components/admin/HuntsList';
@@ -11,6 +11,7 @@ import WaypointForm from '@/components/admin/WaypointForm';
 import WaypointsList from '@/components/admin/WaypointsList';
 import PinCodeEntry from '@/components/admin/PinCodeEntry';
 import PhotoApproval from '@/components/admin/PhotoApproval';
+import LiveMap from '@/components/admin/LiveMap';
 import { useHunt } from '@/contexts/hunt';
 
 const Admin = () => {
@@ -128,7 +129,7 @@ const Admin = () => {
       ) : (
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden transform hover:scale-[1.01] transition-transform duration-300 ease-in-out">
           <Tabs defaultValue="hunts" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 rounded-t-xl px-2 py-2 bg-gray-100">
+            <TabsList className="w-full grid grid-cols-4 rounded-t-xl px-2 py-2 bg-gray-100">
               <TabsTrigger
                 value="hunts"
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white"
@@ -146,6 +147,12 @@ const Admin = () => {
                 className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white flex items-center justify-center"
               >
                 <Image className="h-4 w-4 mr-1" /> Bilder
+              </TabsTrigger>
+              <TabsTrigger
+                value="tracking"
+                className="py-4 rounded-none data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white bg-white flex items-center justify-center"
+              >
+                <MapPin className="h-4 w-4 mr-1" /> Sporing
               </TabsTrigger>
             </TabsList>
             
@@ -209,6 +216,10 @@ const Admin = () => {
             
             <TabsContent value="photos" className="p-6 space-y-4">
               <PhotoApproval />
+            </TabsContent>
+            
+            <TabsContent value="tracking" className="p-6 space-y-4">
+              <LiveMap />
             </TabsContent>
           </Tabs>
         </div>

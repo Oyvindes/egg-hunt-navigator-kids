@@ -6,6 +6,19 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Define the UserLocation interface for our application
+export interface UserLocation {
+  id?: string;
+  user_id: string;
+  hunt_id: string;
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  timestamp: Date;
+  display_name?: string;
+  last_waypoint?: string;
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -110,6 +123,53 @@ export type Database = {
             referencedRelation: "hunts"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      user_locations: {
+        Row: {
+          id: string
+          user_id: string
+          hunt_id: string
+          latitude: number
+          longitude: number
+          accuracy: number
+          display_name: string | null
+          timestamp: string
+          last_waypoint: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          hunt_id: string
+          latitude: number
+          longitude: number
+          accuracy: number
+          display_name?: string | null
+          timestamp?: string
+          last_waypoint?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          hunt_id?: string
+          latitude?: number
+          longitude?: number
+          accuracy?: number
+          display_name?: string | null
+          timestamp?: string
+          last_waypoint?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_locations_hunt_id_fkey"
+            columns: ["hunt_id"]
+            isOneToOne: false
+            referencedRelation: "hunts"
+            referencedColumns: ["id"]
+          }
         ]
       }
       photo_submissions: {

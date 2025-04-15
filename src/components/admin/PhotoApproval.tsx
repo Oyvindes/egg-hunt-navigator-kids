@@ -8,7 +8,11 @@ import {
   updateSubmissionStatus,
   type PhotoSubmission
 } from '@/integrations/supabase/photoService';
-import { triggerNotification } from '@/lib/notificationUtils';
+import {
+  triggerNotification,
+  requestNotificationPermission,
+  showPhotoSubmissionNotification
+} from '@/lib/notificationUtils';
 
 const PhotoApproval = () => {
   const [submissions, setSubmissions] = useState<PhotoSubmission[]>([]);
@@ -18,6 +22,11 @@ const PhotoApproval = () => {
   const { toast } = useToast();
   const { hunts, setWaypointFound } = useHunt();
   
+  // Request notification permission on component mount
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+  
   const loadSubmissions = async () => {
     setLoading(true);
     try {
@@ -25,8 +34,8 @@ const PhotoApproval = () => {
       
       // Check if there are new submissions since last check
       if (pendingSubmissions.length > previousSubmissionCount.current && notificationsEnabled) {
-        // Play sound and vibrate for new submissions
-        triggerNotification();
+        // Show push notification, play sound and vibrate for new submissions
+        showPhotoSubmissionNotification();
         
         // Show toast notification
         toast({
@@ -76,6 +85,18 @@ const PhotoApproval = () => {
       // Mark waypoint as found
       await setWaypointFound(submission.huntId, submission.waypointId, true);
       
+      // Get waypoint info for the notification
+      const waypointInfo = getWaypointInfo(submission.huntId, submission.waypointId);
+      
+      // Notify with success sound
+      triggerNotification(
+        "Bilde godkjent",
+        {
+          body: `${waypointInfo.waypointName} er nå markert som funnet!`,
+          icon: '/favicon.ico',
+        }
+      );
+      
       toast({
         title: "Godkjent",
         description: "Bildet ble godkjent og posten markert som funnet",
@@ -96,8 +117,19 @@ const PhotoApproval = () => {
   
   const handleReject = async (submission: PhotoSubmission) => {
     try {
+      const waypointInfo = getWaypointInfo(submission.huntId, submission.waypointId);
+      
       // Update submission status in Supabase
       await updateSubmissionStatus(submission.id, 'rejected');
+      
+      // Notify with rejection sound
+      triggerNotification(
+        "Bilde avvist",
+        {
+          body: `Bildet for ${waypointInfo.waypointName} ble avvist. Deltaker må ta nytt bilde.`,
+          icon: '/favicon.ico',
+        }
+      );
       
       toast({
         title: "Avvist",
@@ -140,7 +172,11 @@ const PhotoApproval = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={loadSubmissions}
+            onClick={() => {
+              loadSubmissions();
+              // Request notification permission again when refreshing
+              requestNotificationPermission();
+            }}
             className="flex items-center"
           >
             <RefreshCw className="h-4 w-4 mr-1" /> Oppdater

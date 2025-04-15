@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Upload, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPhoto, createPhotoSubmission } from '@/integrations/supabase/photoService';
 import { compressImage } from '../lib/imageUtils';
+import { requestNotificationPermission, showPhotoSubmissionNotification } from '@/lib/notificationUtils';
+import { useLocation } from '@/contexts/LocationContext';
 
 interface PhotoSubmitProps {
   waypointId: string;
@@ -16,6 +18,12 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
   const [photo, setPhoto] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { displayName } = useLocation();
+  
+  // Request notification permission when component loads
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
   const { toast } = useToast();
   
   const handleTakePhoto = () => {
@@ -58,6 +66,9 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
       
       // Step 2: Create submission record in the database
       await createPhotoSubmission(huntId, waypointId, photoUrl);
+      
+      // Send notification to admin when photo is submitted
+      showPhotoSubmissionNotification(displayName || undefined);
       
       toast({
         title: "Bilde sendt",

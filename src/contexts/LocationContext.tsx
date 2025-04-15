@@ -10,10 +10,23 @@ interface LocationContextProps {
   isTracking: boolean;
   isCompassActive: boolean;
   isDevelopmentMode: boolean;
+  userId: string | null;
+  displayName: string | null;
+  setUserInfo: (userId: string, name: string) => void;
   toggleDevelopmentMode: () => void;
+  hasLocationConsent: boolean;
+  setLocationConsent: (consent: boolean) => void;
   setMockLocation: (lat: number, lng: number) => void;
   startTracking: () => void;
   stopTracking: () => void;
+  activeUsers: {
+    userId: string;
+    displayName: string;
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    timestamp: Date;
+  }[];
 }
 
 const LocationContext = createContext<LocationContextProps>({
@@ -25,10 +38,16 @@ const LocationContext = createContext<LocationContextProps>({
   isTracking: false,
   isCompassActive: false,
   isDevelopmentMode: false,
+  userId: null,
+  displayName: null,
+  setUserInfo: () => {},
   toggleDevelopmentMode: () => {},
+  hasLocationConsent: false,
+  setLocationConsent: () => {},
   setMockLocation: () => {},
   startTracking: () => {},
-  stopTracking: () => {}
+  stopTracking: () => {},
+  activeUsers: []
 });
 
 export const useLocation = () => useContext(LocationContext);
@@ -55,10 +74,60 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
   const [watchId, setWatchId] = useState<number | null>(null);
   const [isCompassActive, setIsCompassActive] = useState(false);
   const [isDevelopmentMode, setIsDevelopmentMode] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [hasLocationConsent, setHasLocationConsent] = useState<boolean>(() => {
+    // Check if consent has been previously given
+    return localStorage.getItem('locationSharingConsent') === 'true';
+  });
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  
+  // Mock active users for the admin map view
+  const [activeUsers, setActiveUsers] = useState<Array<{
+    userId: string;
+    displayName: string;
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    timestamp: Date;
+  }>>([
+    // Seed with some initial mock data
+    {
+      userId: 'user1',
+      displayName: 'Hedda',
+      latitude: 59.9138,
+      longitude: 10.7387,
+      accuracy: 10,
+      timestamp: new Date(),
+    },
+    {
+      userId: 'user2',
+      displayName: 'Oscar',
+      latitude: 59.9139,
+      longitude: 10.7390,
+      accuracy: 8,
+      timestamp: new Date(),
+    }
+  ]);
+  
   const { toast } = useToast();
 
   const toggleDevelopmentMode = () => {
     setIsDevelopmentMode(!isDevelopmentMode);
+  };
+  
+  const setUserInfo = (newUserId: string, name: string) => {
+    setUserId(newUserId);
+    setDisplayName(name);
+  };
+  
+  // Function to set location sharing consent
+  const setLocationConsent = (consent: boolean) => {
+    setHasLocationConsent(consent);
+    if (consent) {
+      localStorage.setItem('locationSharingConsent', 'true');
+    } else {
+      localStorage.removeItem('locationSharingConsent');
+    }
   };
   
   const setMockLocation = (lat: number, lng: number) => {
@@ -69,18 +138,70 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
         heading: 0,
         accuracy: 10,
       });
+      
+      // Also update in active users list if we have user info
+      if (userId && displayName) {
+        updateActiveUserLocation(userId, displayName, lat, lng, 10);
+      }
     } else {
       console.warn("Cannot set mock location when not in development mode");
     }
   };
+  
+  // Helper to update the active users array
+  const updateActiveUserLocation = (
+    userId: string, 
+    displayName: string, 
+    latitude: number, 
+    longitude: number, 
+    accuracy: number
+  ) => {
+    setActiveUsers(prev => {
+      // Check if this user already exists in the array
+      const existingIndex = prev.findIndex(u => u.userId === userId);
+      
+      if (existingIndex >= 0) {
+        // Update existing user
+        const newArray = [...prev];
+        newArray[existingIndex] = {
+          ...newArray[existingIndex],
+          latitude,
+          longitude, 
+          accuracy,
+          timestamp: new Date()
+        };
+        return newArray;
+      } else {
+        // Add new user
+        return [...prev, {
+          userId,
+          displayName,
+          latitude,
+          longitude,
+          accuracy,
+          timestamp: new Date()
+        }];
+      }
+    });
+  };
 
   const handlePositionSuccess = (position: GeolocationPosition) => {
+    const newLatitude = position.coords.latitude;
+    const newLongitude = position.coords.longitude;
+    const newAccuracy = position.coords.accuracy;
+    
     setLocation({
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
+      latitude: newLatitude,
+      longitude: newLongitude,
       heading: position.coords.heading || null,
-      accuracy: position.coords.accuracy,
+      accuracy: newAccuracy,
     });
+    
+    // Update active users list with the current user's position
+    if (userId && displayName) {
+      updateActiveUserLocation(userId, displayName, newLatitude, newLongitude, newAccuracy);
+    }
+    
     setError(null);
   };
 
@@ -129,6 +250,12 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
   };
 
   const startTracking = () => {
+    // Check for consent before starting tracking
+    if (!hasLocationConsent && !isDevelopmentMode) {
+      console.log("Location tracking requires consent");
+      return;
+    }
+    
     if (!navigator.geolocation) {
       setError("Geolocation støttes ikke av denne nettleseren");
       toast({
@@ -148,10 +275,10 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
     
     try {
       const iosPermissionAPI = window.DeviceOrientationEvent &&
-        typeof DeviceOrientationEvent.requestPermission === 'function';
+        typeof (DeviceOrientationEvent as any).requestPermission === 'function';
         
       if (iosPermissionAPI) {
-        DeviceOrientationEvent.requestPermission()
+        (DeviceOrientationEvent as any).requestPermission()
           .then((permissionState: string) => {
             if (permissionState === 'granted') {
               startDeviceOrientation();
@@ -211,10 +338,16 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
         isTracking,
         isCompassActive,
         isDevelopmentMode,
+        userId,
+        displayName,
+        setUserInfo,
         toggleDevelopmentMode,
         setMockLocation,
+        hasLocationConsent,
+        setLocationConsent,
         startTracking,
-        stopTracking
+        stopTracking,
+        activeUsers
       }}
     >
       {children}

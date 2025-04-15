@@ -6,6 +6,8 @@ import HintsList from './HintsList';
 import PhotoSubmit from './PhotoSubmit';
 import { useLocation } from '@/contexts/LocationContext';
 import { useHunt } from '@/contexts/hunt';
+import PrivacyConsent from './PrivacyConsent';
+import { updateUserLocation } from '@/integrations/supabase/locationTrackerService';
 import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo-utils';
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';
@@ -14,7 +16,19 @@ import { Info, AlertCircle } from 'lucide-react';
 import { hasPendingSubmission, checkSubmissionStatus } from '@/integrations/supabase/photoService';
 
 const HuntNavigation = () => {
-  const { latitude, longitude, isTracking, startTracking } = useLocation();
+  const {
+    latitude,
+    longitude,
+    accuracy,
+    isTracking,
+    startTracking,
+    setUserInfo,
+    userId,
+    displayName,
+    hasLocationConsent,
+    setLocationConsent
+  } = useLocation();
+  
   const {
     activeHunt,
     currentWaypoint,
@@ -26,21 +40,103 @@ const HuntNavigation = () => {
     isLoading,
     resetHunt
   } = useHunt();
+  
   const [distance, setDistance] = useState<number | null>(null);
   const [processingRevealedHints, setProcessingRevealedHints] = useState<Set<string>>(new Set());
   const [showPhotoSubmit, setShowPhotoSubmit] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState(false);
   const [rejectedSubmission, setRejectedSubmission] = useState(false);
+  const [showPrivacyConsent, setShowPrivacyConsent] = useState(!hasLocationConsent);
   const [shouldCheckCompletion, setShouldCheckCompletion] = useState(false);
   const [checkingSubmission, setCheckingSubmission] = useState(false);
   const [localHuntCompleted, setLocalHuntCompleted] = useState(false);
 
   // Start tracking location when component mounts
+  // Handle privacy consent
+  const handlePrivacyConsent = () => {
+    setLocationConsent(true);
+    setShowPrivacyConsent(false);
+    startTracking();
+  };
+  
+  const handlePrivacyDecline = () => {
+    setShowPrivacyConsent(false);
+    // Don't start tracking if user declines
+  };
+  
+  // Start tracking location when component mounts and set user info
   useEffect(() => {
-    if (!isTracking) {
+    // Only start tracking if we have consent
+    if (!isTracking && hasLocationConsent) {
       startTracking();
     }
-  }, [isTracking, startTracking]);
+    
+    // Generate a random user ID if none exists yet
+    const storedUserId = localStorage.getItem('eggHunterUserId');
+    const storedName = localStorage.getItem('eggHunterName');
+    
+    if (storedUserId && storedName) {
+      // Use stored values
+      setUserInfo(storedUserId, storedName);
+    } else {
+      // Generate new values
+      const newUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+      
+      // Use a random name from a list of Easter-themed names
+      const names = ['Hedda', 'Oscar', 'Kylling', 'Kanin', 'PåskeEgg', 'KokosMarsipan'];
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      
+      // Store for future use
+      localStorage.setItem('eggHunterUserId', newUserId);
+      localStorage.setItem('eggHunterName', randomName);
+      
+      // Set in context
+      setUserInfo(newUserId, randomName);
+    }
+  }, [isTracking, startTracking, setUserInfo, hasLocationConsent]);
+  
+  // Update location in database periodically
+  // Update location in database periodically when user is tracking
+  useEffect(() => {
+    // Only update location if we have consent and are tracking
+    if (!isTracking || !activeHunt || !userId || !latitude || !longitude || !hasLocationConsent) return;
+    
+    // Send location update to database
+    const updateLocation = async () => {
+      try {
+        await updateUserLocation(
+          userId,
+          activeHunt.id,
+          latitude,
+          longitude,
+          accuracy || 0,
+          displayName || undefined,
+          currentWaypoint?.name
+        );
+        console.log('Location updated in database');
+      } catch (error) {
+        console.error('Failed to update location in database:', error);
+      }
+    };
+    
+    // Update initially
+    updateLocation();
+    
+    // Then update every 30 seconds
+    const interval = setInterval(updateLocation, 30000);
+    
+    return () => clearInterval(interval);
+  }, [
+    isTracking,
+    activeHunt,
+    userId,
+    latitude,
+    longitude,
+    accuracy,
+    displayName,
+    currentWaypoint,
+    hasLocationConsent
+  ]);
   
   // Check for pending submission
   useEffect(() => {
@@ -192,6 +288,11 @@ const HuntNavigation = () => {
     );
   }
 
+  // Show privacy consent dialog if needed
+  if (showPrivacyConsent) {
+    return <PrivacyConsent onConsent={handlePrivacyConsent} onDecline={handlePrivacyDecline} />;
+  }
+  
   if (!currentWaypoint) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
