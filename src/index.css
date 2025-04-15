@@ -10,6 +10,8 @@
     --primary-foreground: 0 0% 10%; /* Black text */
     --secondary: 198 93% 55%; /* Bright blue */
     --secondary-foreground: 0 0% 10%; /* Black text */
+    --dark-blue: 215 100% 20%; /* Dark blue for text */
+    --blue-text: 215 80% 30%; /* Slightly lighter blue text */
   }
 
   body {
@@ -19,16 +21,21 @@
 
   /* Utility classes for text colors */
   .text-primary {
-    @apply text-black;
+    @apply text-blue-800;
   }
   .text-secondary {
-    @apply text-black opacity-90;
+    @apply text-blue-700;
   }
   .text-accent {
-    @apply text-black opacity-80;
+    @apply text-blue-600;
   }
   .text-highlight {
-    @apply text-black opacity-95;
+    @apply text-blue-900;
+  }
+  
+  /* Dark blue text utility classes */
+  .text-dark-blue {
+    color: #00348D;
   }
   
   /* Card styling for a light effect */
