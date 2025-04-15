@@ -10,8 +10,8 @@ import { calculateDistance, isWaypointFound, getAvailableHints } from '@/lib/geo
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
-import { Info } from 'lucide-react';
-import { hasPendingSubmission } from '@/integrations/supabase/photoService';
+import { Info, AlertCircle } from 'lucide-react';
+import { hasPendingSubmission, checkSubmissionStatus } from '@/integrations/supabase/photoService';
 
 const HuntNavigation = () => {
   const { latitude, longitude, isTracking, startTracking } = useLocation();
@@ -30,6 +30,7 @@ const HuntNavigation = () => {
   const [processingRevealedHints, setProcessingRevealedHints] = useState<Set<string>>(new Set());
   const [showPhotoSubmit, setShowPhotoSubmit] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState(false);
+  const [rejectedSubmission, setRejectedSubmission] = useState(false);
   const [shouldCheckCompletion, setShouldCheckCompletion] = useState(false);
   const [checkingSubmission, setCheckingSubmission] = useState(false);
   const [localHuntCompleted, setLocalHuntCompleted] = useState(false);
@@ -43,19 +44,22 @@ const HuntNavigation = () => {
   
   // Check for pending submission
   useEffect(() => {
-    const checkSubmissionStatus = async () => {
+    const checkCurrentSubmissionStatus = async () => {
       if (!activeHunt || !currentWaypoint) return;
       
       setCheckingSubmission(true);
       try {
-        const isPending = await hasPendingSubmission(activeHunt.id, currentWaypoint.id);
+        // Use the enhanced status check function
+        const status = await checkSubmissionStatus(activeHunt.id, currentWaypoint.id);
         
-        // If we had a pending submission that's now gone, trigger completion check
-        if (pendingSubmission && !isPending) {
+        // Update states based on status
+        setPendingSubmission(status.isPending);
+        setRejectedSubmission(status.wasRejected);
+        
+        // If we had a pending submission that's now gone (and not rejected), trigger completion check
+        if (pendingSubmission && !status.isPending && !status.wasRejected) {
           setShouldCheckCompletion(true);
         }
-        
-        setPendingSubmission(isPending);
       } catch (error) {
         console.error('Error checking submission status:', error);
       } finally {
@@ -63,10 +67,10 @@ const HuntNavigation = () => {
       }
     };
     
-    checkSubmissionStatus();
+    checkCurrentSubmissionStatus();
     
     // Set up polling to check status every 5 seconds
-    const interval = setInterval(checkSubmissionStatus, 5000);
+    const interval = setInterval(checkCurrentSubmissionStatus, 5000);
     return () => clearInterval(interval);
   }, [activeHunt, currentWaypoint, pendingSubmission]);
 
@@ -266,17 +270,18 @@ const HuntNavigation = () => {
                   variant="outline"
                   size="sm"
                   onClick={async () => {
-                    // Refresh to check if the submission was approved
+                    // Refresh to check if the submission was approved or rejected
                     setCheckingSubmission(true);
                     
                     // Manually check submission status
                     try {
-                      const isPending = await hasPendingSubmission(activeHunt.id, currentWaypoint.id);
+                      const status = await checkSubmissionStatus(activeHunt.id, currentWaypoint.id);
                       
-                      // If submission is no longer pending, trigger completion check
-                      if (!isPending) {
-                        setPendingSubmission(false);
-                        
+                      setPendingSubmission(status.isPending);
+                      setRejectedSubmission(status.wasRejected);
+                      
+                      // Only proceed if the submission was approved (not pending and not rejected)
+                      if (!status.isPending && !status.wasRejected) {
                         // Check if this was the last waypoint in the hunt
                         const waypointsCount = activeHunt.waypoints.length;
                         const foundWaypoints = activeHunt.waypoints.filter(wp => wp.found).length;
@@ -287,8 +292,6 @@ const HuntNavigation = () => {
                         } else {
                           setShouldCheckCompletion(true);
                         }
-                      } else {
-                        setPendingSubmission(true);
                       }
                     } catch (error) {
                       console.error('Error checking submission status:', error);
@@ -299,6 +302,26 @@ const HuntNavigation = () => {
                   className="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-100 border-yellow-500/30 rounded-full"
                 >
                   Sjekk status
+                </Button>
+              </div>
+            </div>
+          ) : rejectedSubmission ? (
+            <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/30 rounded-xl p-4 text-center shadow-lg">
+              <div className="flex items-center justify-center mb-2">
+                <AlertCircle className="text-red-300 mr-2 h-5 w-5" />
+                <p className="text-red-300 font-medium">Bildet ble ikke godkjent</p>
+              </div>
+              <p className="text-red-200 text-sm mb-3">Du må ta et nytt og tydeligere bilde av påskeegget</p>
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPhotoSubmit(true);
+                    setRejectedSubmission(false);
+                  }}
+                  className="bg-red-500/30 hover:bg-red-500/50 text-red-100 border-red-400/30 rounded-full"
+                >
+                  Ta nytt bilde
                 </Button>
               </div>
             </div>

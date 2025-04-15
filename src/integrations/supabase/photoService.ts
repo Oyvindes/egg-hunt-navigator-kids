@@ -186,6 +186,55 @@ export const hasPendingSubmission = async (
 };
 
 /**
+ * Check submission status for a specific waypoint
+ * @param huntId - ID of the hunt
+ * @param waypointId - ID of the waypoint
+ * @returns Object with wasApproved and wasRejected flags
+ */
+export const checkSubmissionStatus = async (
+  huntId: string,
+  waypointId: string
+): Promise<{isPending: boolean; wasRejected: boolean}> => {
+  try {
+    // First check for pending submissions
+    const { data: pendingData, error: pendingError } = await supabase
+      .from('photo_submissions')
+      .select('*')
+      .eq('hunt_id', huntId)
+      .eq('waypoint_id', waypointId)
+      .eq('status', 'pending')
+      .limit(1);
+
+    if (pendingError) throw pendingError;
+    
+    // If there's a pending submission, return early
+    if (pendingData.length > 0) {
+      return { isPending: true, wasRejected: false };
+    }
+
+    // Check for recently rejected submissions
+    const { data: rejectedData, error: rejectedError } = await supabase
+      .from('photo_submissions')
+      .select('*')
+      .eq('hunt_id', huntId)
+      .eq('waypoint_id', waypointId)
+      .eq('status', 'rejected')
+      .order('timestamp', { ascending: false })
+      .limit(1);
+
+    if (rejectedError) throw rejectedError;
+
+    return {
+      isPending: false,
+      wasRejected: rejectedData.length > 0
+    };
+  } catch (error) {
+    console.error('Error checking submission status:', error);
+    return { isPending: false, wasRejected: false };
+  }
+};
+
+/**
  * Get all photo submissions for a waypoint
  * @param huntId - ID of the hunt
  * @param waypointId - ID of the waypoint
