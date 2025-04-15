@@ -2,7 +2,7 @@
 import React from 'react';
 import { useHunt } from '@/contexts/hunt';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, MapPin } from 'lucide-react';
+import { Pencil, Trash2, MapPin, RefreshCw } from 'lucide-react';
 import { Waypoint } from '@/lib/types';
 
 interface WaypointsListProps {
@@ -11,7 +11,7 @@ interface WaypointsListProps {
 }
 
 const WaypointsList = ({ huntId, onEdit }: WaypointsListProps) => {
-  const { hunts, deleteWaypoint } = useHunt();
+  const { hunts, deleteWaypoint, setWaypointFound, setHintRevealed } = useHunt();
   
   const hunt = hunts.find(h => h.id === huntId);
   if (!hunt) return null;
@@ -54,6 +54,29 @@ const WaypointsList = ({ huntId, onEdit }: WaypointsListProps) => {
             </div>
             
             <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Reset this specific waypoint
+                  if (confirm(`Er du sikker på at du vil starte posten "${waypoint.name}" på nytt?`)) {
+                    // Reset the found status
+                    setWaypointFound(huntId, waypoint.id, false);
+                    
+                    // Reset all hints
+                    waypoint.hints.forEach(hint => {
+                      if (hint.revealed) {
+                        setHintRevealed(huntId, waypoint.id, hint.id, false);
+                      }
+                    });
+                  }
+                }}
+                className="bg-red-500/20 hover:bg-red-500/30 text-red-600 border-red-500/30 rounded-full text-xs flex items-center"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Restart post
+              </Button>
+              
               {onEdit && (
                 <Button
                   variant="ghost"
