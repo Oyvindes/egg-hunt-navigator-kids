@@ -213,7 +213,7 @@ const HuntNavigation = () => {
         {currentWaypoint.startingHint && (
           <div className="mt-4 bg-blue-500/20 backdrop-blur-sm border-l-4 border-blue-400 p-3 rounded-r text-sm flex items-center">
             <Info className="h-5 w-5 mr-2 text-blue-300" />
-            <span className="text-gray-200">{currentWaypoint.startingHint}</span>
+            <span className="text-blue-800">{currentWaypoint.startingHint}</span>
           </div>
         )}
       </div>
