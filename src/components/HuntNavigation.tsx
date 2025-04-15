@@ -83,10 +83,8 @@ const HuntNavigation = () => {
     
     setDistance(calculatedDistance);
     
-    // Check if waypoint is found
-    if (isWaypointFound(calculatedDistance) && activeHunt) {
-      moveToNextWaypoint();
-    }
+    // No longer automatically move to next waypoint based on proximity
+    // Approval now comes only from photo submission
     
     // Process hints based on distance
     if (activeHunt) {
@@ -221,10 +219,16 @@ const HuntNavigation = () => {
       <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
         <h3 className="text-sm font-medium mb-3 text-gray-200">Navigasjon</h3>
         
-        <CompassArrow
-          targetLatitude={currentWaypoint.latitude}
-          targetLongitude={currentWaypoint.longitude}
-        />
+        {distance && distance > 50 ? (
+          <CompassArrow
+            targetLatitude={currentWaypoint.latitude}
+            targetLongitude={currentWaypoint.longitude}
+          />
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-gray-300">Du er i nærheten! Se deg godt rundt.</p>
+          </div>
+        )}
       </div>
       
       {distance !== null && (
