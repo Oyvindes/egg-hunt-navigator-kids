@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Upload, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPhoto, createPhotoSubmission } from '@/integrations/supabase/photoService';
+import { compressImage } from '@/lib/imageUtils';
 
 interface PhotoSubmitProps {
   waypointId: string;
@@ -23,25 +24,27 @@ const PhotoSubmit = ({ waypointId, huntId, onSubmitSuccess, onCancel }: PhotoSub
     }
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    try {
+      // Compress image instead of rejecting large files
+      const compressedImage = await compressImage(file, 1200, 0.7);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(compressedImage);
+    } catch (error) {
+      console.error('Error compressing image:', error);
       toast({
         title: "Feil",
-        description: "Bildet er for stort (maks 5MB)",
+        description: "Kunne ikke behandle bildet. Prøv igjen.",
         variant: "destructive"
       });
-      return;
     }
-    
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhoto(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
   
   const handleSubmit = async () => {
