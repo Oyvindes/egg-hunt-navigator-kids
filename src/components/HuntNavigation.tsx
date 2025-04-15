@@ -200,12 +200,12 @@ const HuntNavigation = () => {
   return (
     <div className="space-y-6">
       <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
-        <h2 className="text-xl font-semibold mb-1 text-black">{currentWaypoint.name}</h2>
-        <p className="text-sm text-black">Post {currentWaypoint.order} av {activeHunt.waypoints.length}</p>
+        <h2 className="text-xl font-semibold mb-1 text-white">{currentWaypoint.name}</h2>
+        <p className="text-sm text-gray-300">Post {currentWaypoint.order} av {activeHunt.waypoints.length}</p>
         
         <div className="mt-4">
           <Progress value={progressPercentage} className="h-3 bg-gray-800" />
-          <p className="text-sm text-black mt-1">{Math.round(progressPercentage)}% fullført</p>
+          <p className="text-sm text-gray-300 mt-1">{Math.round(progressPercentage)}% fullført</p>
         </div>
         
         {currentWaypoint.startingHint && (
@@ -217,7 +217,7 @@ const HuntNavigation = () => {
       </div>
       {/* Navigation section */}
       <div className="bg-black/50 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-600/50 transform hover:scale-[1.01] transition-transform duration-300">
-        <h3 className="text-sm font-medium mb-3 text-black">Navigasjon</h3>
+        <h3 className="text-sm font-medium mb-3 text-gray-200">Navigasjon</h3>
         
         {distance && distance > 50 ? (
           <CompassArrow
@@ -226,7 +226,7 @@ const HuntNavigation = () => {
           />
         ) : (
           <div className="text-center py-4">
-            <p className="text-black">Du er i nærheten! Se deg godt rundt.</p>
+            <p className="text-gray-300">Du er i nærheten! Se deg godt rundt.</p>
           </div>
         )}
       </div>
@@ -255,12 +255,12 @@ const HuntNavigation = () => {
           {checkingSubmission ? (
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary mr-2"></div>
-              <span className="text-black">Sjekker bildeinnleveringer...</span>
+              <span className="text-gray-500">Sjekker bildeinnleveringer...</span>
             </div>
           ) : pendingSubmission ? (
             <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-xl p-4 text-center shadow-lg">
-              <p className="text-black font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
-              <p className="text-black text-sm mb-3">Vent på at bildet blir godkjent før du fortsetter</p>
+              <p className="text-yellow-300 font-medium mb-2">Bildet ditt er sendt til godkjenning</p>
+              <p className="text-yellow-200 text-sm mb-3">Vent på at bildet blir godkjent før du fortsetter</p>
               <div className="flex justify-center">
                 <Button
                   variant="outline"
